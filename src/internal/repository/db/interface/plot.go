@@ -1,4 +1,4 @@
-package ri
+package rdi
 
 type PlotRepository interface {
 }

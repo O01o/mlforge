@@ -1,8 +1,8 @@
-package rm
+package rdm
 
 import (
 	"mlforge/internal/assets"
-	ri "mlforge/internal/repository/interface"
+	ri "mlforge/internal/repository/db/interface"
 
 	"github.com/jmoiron/sqlx"
 )
