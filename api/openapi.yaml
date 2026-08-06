@@ -1,0 +1,1498 @@
+openapi: 3.1.0
+
+info:
+  title: MLforge API
+  version: 0.1.0
+  description: |
+    A lightweight, language-independent experiment tracking API.
+
+    MLforge manages experiments, runs, parameters, metrics, plots,
+    and artifact metadata for machine learning and other computational workloads.
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+
+tags:
+  - name: System
+  - name: Experiments
+  - name: Runs
+  - name: Parameters
+  - name: Metrics
+  - name: Artifacts
+
+paths:
+  /health:
+    get:
+      tags:
+        - System
+      operationId: getHealth
+      summary: Check server health
+      responses:
+        "200":
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /experiments:
+    get:
+      tags:
+        - Experiments
+      operationId: listExperiments
+      summary: List experiments
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/AfterId"
+      responses:
+        "200":
+          description: Experiment list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExperimentListResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+    post:
+      tags:
+        - Experiments
+      operationId: createExperiment
+      summary: Create an experiment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExperimentRequest"
+      responses:
+        "201":
+          description: Experiment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Experiment"
+        "409":
+          description: Experiment name already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /experiments/{experimentId}:
+    parameters:
+      - $ref: "#/components/parameters/ExperimentId"
+
+    get:
+      tags:
+        - Experiments
+      operationId: getExperiment
+      summary: Get an experiment
+      responses:
+        "200":
+          description: Experiment details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Experiment"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+    patch:
+      tags:
+        - Experiments
+      operationId: updateExperiment
+      summary: Update an experiment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateExperimentRequest"
+      responses:
+        "200":
+          description: Experiment updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Experiment"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+    delete:
+      tags:
+        - Experiments
+      operationId: deleteExperiment
+      summary: Delete an experiment
+      description: |
+        Deletes the experiment and its associated runs.
+
+        Artifact object deletion behavior is implementation-dependent and
+        should be documented separately.
+      responses:
+        "204":
+          description: Experiment deleted
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /experiments/{experimentId}/runs:
+    parameters:
+      - $ref: "#/components/parameters/ExperimentId"
+
+    get:
+      tags:
+        - Runs
+      operationId: listRuns
+      summary: List runs in an experiment
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/RunStatus"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/AfterId"
+      responses:
+        "200":
+          description: Run list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunListResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+    post:
+      tags:
+        - Runs
+      operationId: createRun
+      summary: Create and start a run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRunRequest"
+      responses:
+        "201":
+          description: Run created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Run"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+
+    get:
+      tags:
+        - Runs
+      operationId: getRun
+      summary: Get a run
+      responses:
+        "200":
+          description: Run details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Run"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+    patch:
+      tags:
+        - Runs
+      operationId: updateRun
+      summary: Update mutable run metadata
+      description: |
+        Updates run metadata such as its name.
+
+        Run status transitions should use the dedicated finish and fail
+        operations instead.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRunRequest"
+      responses:
+        "200":
+          description: Run updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Run"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+    delete:
+      tags:
+        - Runs
+      operationId: deleteRun
+      summary: Delete a run
+      responses:
+        "204":
+          description: Run deleted
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/finish:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+
+    post:
+      tags:
+        - Runs
+      operationId: finishRun
+      summary: Mark a run as completed
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinishRunRequest"
+      responses:
+        "200":
+          description: Run completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Run"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        "409":
+          description: Invalid run status transition
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/fail:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+
+    post:
+      tags:
+        - Runs
+      operationId: failRun
+      summary: Mark a run as failed
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FailRunRequest"
+      responses:
+        "200":
+          description: Run marked as failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Run"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        "409":
+          description: Invalid run status transition
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/parameters:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+
+    get:
+      tags:
+        - Parameters
+      operationId: listParameters
+      summary: List run parameters
+      responses:
+        "200":
+          description: Parameter list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterListResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+    put:
+      tags:
+        - Parameters
+      operationId: putParameters
+      summary: Create or replace run parameters
+      description: |
+        Registers multiple parameters in one transaction.
+
+        Parameter names are unique within a run. Existing values with the same
+        names are replaced.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutParametersRequest"
+      responses:
+        "200":
+          description: Parameters registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterListResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        "409":
+          description: Run no longer accepts parameter updates
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/metrics:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+
+    get:
+      tags:
+        - Metrics
+      operationId: listMetrics
+      summary: List metrics defined in a run
+      responses:
+        "200":
+          description: Metric list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetricListResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/metrics:batch:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+
+    post:
+      tags:
+        - Metrics
+      operationId: writeMetricBatch
+      summary: Write plots in a batch
+      description: |
+        Registers plots in one database transaction.
+
+        A metric definition is created automatically when a metric name does
+        not yet exist in the run.
+
+        The recommended batch size is 100 to 1,000 points. The server may
+        reject requests exceeding the configured maximum batch size.
+
+        A point is identified by the combination of run, metric name, and step.
+        Re-sending the same point replaces its value and recorded timestamp.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WriteMetricBatchRequest"
+      responses:
+        "200":
+          description: plots registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WriteMetricBatchResponse"
+        "400":
+          description: Invalid or oversized batch
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        "409":
+          description: Run no longer accepts metric updates
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/metrics/{metricName}:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+      - $ref: "#/components/parameters/MetricName"
+
+    get:
+      tags:
+        - Metrics
+      operationId: getMetric
+      summary: Get metric metadata and its latest point
+      responses:
+        "200":
+          description: Metric details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetricDetail"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+    delete:
+      tags:
+        - Metrics
+      operationId: deleteMetric
+      summary: Delete a metric and its points
+      responses:
+        "204":
+          description: Metric deleted
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/metrics/{metricName}/points:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+      - $ref: "#/components/parameters/MetricName"
+
+    get:
+      tags:
+        - Metrics
+      operationId: getMetricPoints
+      summary: Get plots by step range
+      description: |
+        Returns raw plots ordered by step.
+
+        The number of returned points is limited. Cursor pagination uses the
+        last returned step instead of OFFSET.
+      parameters:
+        - name: fromStep
+          in: query
+          required: false
+          description: Inclusive lower step boundary
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            default: 0
+        - name: toStep
+          in: query
+          required: false
+          description: Inclusive upper step boundary
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+        - name: afterStep
+          in: query
+          required: false
+          description: |
+            Return points whose step is greater than this value.
+
+            Used for cursor-based pagination.
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+            default: 1000
+      responses:
+        "200":
+          description: plots
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetricPointListResponse"
+        "400":
+          description: Invalid step range
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/metrics/{metricName}/series:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+      - $ref: "#/components/parameters/MetricName"
+
+    get:
+      tags:
+        - Metrics
+      operationId: getMetricSeries
+      summary: Get a display-oriented metric series
+      description: |
+        Returns a metric series suitable for plotting.
+
+        The server returns no more than the requested resolution. It may use
+        raw points, downsampling, or precomputed rollups internally.
+
+        This endpoint does not guarantee that every stored point is returned.
+      parameters:
+        - name: fromStep
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            default: 0
+        - name: toStep
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+        - name: resolution
+          in: query
+          required: false
+          description: Maximum number of points or buckets to return
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 10000
+            default: 1000
+        - name: aggregation
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/SeriesAggregation"
+      responses:
+        "200":
+          description: Display-oriented metric series
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetricSeriesResponse"
+        "400":
+          description: Invalid step range or resolution
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/artifacts:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+
+    get:
+      tags:
+        - Artifacts
+      operationId: listArtifacts
+      summary: List artifact metadata
+      parameters:
+        - name: prefix
+          in: query
+          required: false
+          description: Filter artifact paths by prefix
+          schema:
+            type: string
+            maxLength: 1024
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/AfterId"
+      responses:
+        "200":
+          description: Artifact list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactListResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+    post:
+      tags:
+        - Artifacts
+      operationId: createArtifact
+      summary: Register artifact metadata
+      description: |
+        Registers metadata for an object that has already been uploaded.
+
+        For direct object storage uploads, create an upload URL first and call
+        this operation after the upload succeeds.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateArtifactRequest"
+      responses:
+        "201":
+          description: Artifact registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Artifact"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        "409":
+          description: Artifact path already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/artifacts:prepare-upload:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+
+    post:
+      tags:
+        - Artifacts
+      operationId: prepareArtifactUpload
+      summary: Create a direct artifact upload URL
+      description: |
+        Creates an upload URL for the configured artifact storage backend.
+
+        Local-storage deployments may return an MLforge API upload URL instead
+        of an object-storage signed URL.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrepareArtifactUploadRequest"
+      responses:
+        "200":
+          description: Upload URL created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrepareArtifactUploadResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        "409":
+          description: Artifact path already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/artifacts/{artifactId}:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+      - $ref: "#/components/parameters/ArtifactId"
+
+    get:
+      tags:
+        - Artifacts
+      operationId: getArtifact
+      summary: Get artifact metadata
+      responses:
+        "200":
+          description: Artifact details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Artifact"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+    delete:
+      tags:
+        - Artifacts
+      operationId: deleteArtifact
+      summary: Delete artifact metadata and its stored object
+      responses:
+        "204":
+          description: Artifact deleted
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /runs/{runId}/artifacts/{artifactId}/download:
+    parameters:
+      - $ref: "#/components/parameters/RunId"
+      - $ref: "#/components/parameters/ArtifactId"
+
+    post:
+      tags:
+        - Artifacts
+      operationId: createArtifactDownloadUrl
+      summary: Create an artifact download URL
+      responses:
+        "200":
+          description: Download URL created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactDownloadResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+components:
+  parameters:
+    ExperimentId:
+      name: experimentId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+
+    RunId:
+      name: runId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+
+    ArtifactId:
+      name: artifactId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+
+    MetricName:
+      name: metricName
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: "^[A-Za-z0-9._/-]+$"
+
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 100
+
+    AfterId:
+      name: afterId
+      in: query
+      required: false
+      description: Return records whose ID is greater than this value
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+
+  responses:
+    ErrorResponse:
+      description: Request failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    NotFoundResponse:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - version
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+        version:
+          type: string
+          example: 0.1.0
+
+    Experiment:
+      type: object
+      required:
+        - id
+        - name
+        - createdAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type:
+            - string
+            - "null"
+          maxLength: 4096
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+
+    CreateExperimentRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          maxLength: 4096
+
+    UpdateExperimentRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type:
+            - string
+            - "null"
+          maxLength: 4096
+
+    ExperimentListResponse:
+      type: object
+      required:
+        - experiments
+        - hasMore
+      properties:
+        experiments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Experiment"
+        hasMore:
+          type: boolean
+        nextAfterId:
+          type:
+            - integer
+            - "null"
+          format: int64
+
+    RunStatus:
+      type: string
+      enum:
+        - running
+        - completed
+        - failed
+        - cancelled
+
+    Run:
+      type: object
+      required:
+        - id
+        - experimentId
+        - status
+        - startedAt
+        - createdAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        experimentId:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type:
+            - string
+            - "null"
+          maxLength: 128
+        status:
+          $ref: "#/components/schemas/RunStatus"
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        failureReason:
+          type:
+            - string
+            - "null"
+          maxLength: 4096
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+
+    CreateRunRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          maxLength: 128
+        startedAt:
+          type: string
+          format: date-time
+
+    UpdateRunRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type:
+            - string
+            - "null"
+          maxLength: 128
+
+    FinishRunRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        endedAt:
+          type: string
+          format: date-time
+
+    FailRunRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        endedAt:
+          type: string
+          format: date-time
+        reason:
+          type: string
+          maxLength: 4096
+
+    RunListResponse:
+      type: object
+      required:
+        - runs
+        - hasMore
+      properties:
+        runs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Run"
+        hasMore:
+          type: boolean
+        nextAfterId:
+          type:
+            - integer
+            - "null"
+          format: int64
+
+    Parameter:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - value
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+        value:
+          type: string
+          maxLength: 65535
+
+    PutParametersRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - parameters
+      properties:
+        parameters:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items:
+            $ref: "#/components/schemas/Parameter"
+
+    ParameterListResponse:
+      type: object
+      required:
+        - parameters
+      properties:
+        parameters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Parameter"
+
+    Metric:
+      type: object
+      required:
+        - id
+        - runId
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        runId:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+        pointCount:
+          type: integer
+          format: int64
+          minimum: 0
+        minimumStep:
+          type:
+            - integer
+            - "null"
+          format: int64
+          minimum: 0
+        maximumStep:
+          type:
+            - integer
+            - "null"
+          format: int64
+          minimum: 0
+        latestValue:
+          type:
+            - number
+            - "null"
+          format: double
+
+    MetricDetail:
+      allOf:
+        - $ref: "#/components/schemas/Metric"
+        - type: object
+          properties:
+            latestPoint:
+              oneOf:
+                - $ref: "#/components/schemas/MetricPoint"
+                - type: "null"
+
+    MetricListResponse:
+      type: object
+      required:
+        - metrics
+      properties:
+        metrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/Metric"
+
+    MetricPoint:
+      type: object
+      additionalProperties: false
+      required:
+        - step
+        - value
+      properties:
+        step:
+          type: integer
+          format: int64
+          minimum: 0
+        value:
+          type: number
+          format: double
+        recordedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+
+    MetricPointInput:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - step
+        - value
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: "^[A-Za-z0-9._/-]+$"
+        step:
+          type: integer
+          format: int64
+          minimum: 0
+        value:
+          type: number
+          format: double
+        recordedAt:
+          type: string
+          format: date-time
+
+    WriteMetricBatchRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - points
+      properties:
+        points:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items:
+            $ref: "#/components/schemas/MetricPointInput"
+
+    WriteMetricBatchResponse:
+      type: object
+      required:
+        - accepted
+        - createdMetrics
+        - replacedPoints
+      properties:
+        accepted:
+          type: integer
+          minimum: 0
+        createdMetrics:
+          type: integer
+          minimum: 0
+        replacedPoints:
+          type: integer
+          minimum: 0
+
+    MetricPointListResponse:
+      type: object
+      required:
+        - metricName
+        - points
+        - hasMore
+      properties:
+        metricName:
+          type: string
+        points:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricPoint"
+        hasMore:
+          type: boolean
+        nextAfterStep:
+          type:
+            - integer
+            - "null"
+          format: int64
+
+    SeriesAggregation:
+      type: string
+      enum:
+        - raw
+        - average
+        - min-max-average
+      default: min-max-average
+
+    MetricSeriesPoint:
+      type: object
+      required:
+        - fromStep
+        - toStep
+        - pointCount
+      properties:
+        fromStep:
+          type: integer
+          format: int64
+          minimum: 0
+        toStep:
+          type: integer
+          format: int64
+          minimum: 0
+        pointCount:
+          type: integer
+          minimum: 1
+        value:
+          type: number
+          format: double
+          description: Present when aggregation is raw or average
+        minimum:
+          type: number
+          format: double
+          description: Present when aggregation is min-max-average
+        maximum:
+          type: number
+          format: double
+          description: Present when aggregation is min-max-average
+        average:
+          type: number
+          format: double
+          description: Present when aggregation is min-max-average
+        first:
+          type: number
+          format: double
+        last:
+          type: number
+          format: double
+
+    MetricSeriesResponse:
+      type: object
+      required:
+        - metricName
+        - aggregation
+        - requestedResolution
+        - actualPointCount
+        - series
+      properties:
+        metricName:
+          type: string
+        aggregation:
+          $ref: "#/components/schemas/SeriesAggregation"
+        requestedResolution:
+          type: integer
+          minimum: 1
+        actualPointCount:
+          type: integer
+          minimum: 0
+        sourcePointCount:
+          type: integer
+          format: int64
+          minimum: 0
+        series:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricSeriesPoint"
+
+    Artifact:
+      type: object
+      required:
+        - id
+        - runId
+        - path
+        - objectUri
+        - createdAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        runId:
+          type: integer
+          format: int64
+          minimum: 1
+        path:
+          type: string
+          minLength: 1
+          maxLength: 1024
+        objectUri:
+          type: string
+          minLength: 1
+          maxLength: 2048
+        sizeBytes:
+          type:
+            - integer
+            - "null"
+          format: int64
+          minimum: 0
+        contentType:
+          type:
+            - string
+            - "null"
+          maxLength: 255
+        checksumSha256:
+          type:
+            - string
+            - "null"
+          pattern: "^[A-Fa-f0-9]{64}$"
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateArtifactRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - path
+        - objectUri
+      properties:
+        path:
+          type: string
+          minLength: 1
+          maxLength: 1024
+        objectUri:
+          type: string
+          minLength: 1
+          maxLength: 2048
+        sizeBytes:
+          type: integer
+          format: int64
+          minimum: 0
+        contentType:
+          type: string
+          maxLength: 255
+        checksumSha256:
+          type: string
+          pattern: "^[A-Fa-f0-9]{64}$"
+
+    ArtifactListResponse:
+      type: object
+      required:
+        - artifacts
+        - hasMore
+      properties:
+        artifacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Artifact"
+        hasMore:
+          type: boolean
+        nextAfterId:
+          type:
+            - integer
+            - "null"
+          format: int64
+
+    PrepareArtifactUploadRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - path
+      properties:
+        path:
+          type: string
+          minLength: 1
+          maxLength: 1024
+        contentType:
+          type: string
+          maxLength: 255
+        sizeBytes:
+          type: integer
+          format: int64
+          minimum: 0
+        checksumSha256:
+          type: string
+          pattern: "^[A-Fa-f0-9]{64}$"
+
+    PrepareArtifactUploadResponse:
+      type: object
+      required:
+        - method
+        - uploadUrl
+        - objectUri
+        - expiresAt
+      properties:
+        method:
+          type: string
+          enum:
+            - PUT
+            - POST
+        uploadUrl:
+          type: string
+          format: uri
+        objectUri:
+          type: string
+          maxLength: 2048
+        expiresAt:
+          type: string
+          format: date-time
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+
+    ArtifactDownloadResponse:
+      type: object
+      required:
+        - downloadUrl
+        - expiresAt
+      properties:
+        downloadUrl:
+          type: string
+          format: uri
+        expiresAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: RESOURCE_NOT_FOUND
+        message:
+          type: string
+          example: The requested run was not found.
+        details:
+          type:
+            - object
+            - "null"
+          additionalProperties: true
