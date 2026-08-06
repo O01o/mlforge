@@ -1,3 +1,27 @@
+# --------------------------------------------------
+# MLforge Swagger
+# --------------------------------------------------
+
+FROM node:24-alpine AS swagger
+
+WORKDIR /swagger
+
+RUN npm init -y \
+    && npm install swagger-ui-dist
+
+RUN mkdir -p /out \
+    && cp node_modules/swagger-ui-dist/swagger-ui.css /out/ \
+    && cp node_modules/swagger-ui-dist/swagger-ui-bundle.js /out/ \
+    && cp node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js /out/
+
+COPY /index.html /out/index.html
+
+
+
+# --------------------------------------------------
+# MLforge Backend
+# --------------------------------------------------
+
 FROM golang:1.25-alpine AS backend
 
 WORKDIR /src

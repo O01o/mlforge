@@ -1,0 +1,13 @@
+{
+  "name": "mlforge-swagger",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Standalone Swagger UI assets for mlforge",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "mkdir -p out && cp index.html out/index.html && cp openapi.yaml out/openapi.yaml && cp node_modules/swagger-ui-dist/swagger-ui.css out/swagger-ui.css && cp node_modules/swagger-ui-dist/swagger-ui-bundle.js out/swagger-ui-bundle.js && cp node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js out/swagger-ui-standalone-preset.js"
+  },
+  "dependencies": {
+    "swagger-ui-dist": "^5.17.14"
+  }
+}

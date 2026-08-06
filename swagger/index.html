@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <title>MLforge API</title>
-  <link rel="stylesheet" href="/docs/swagger-ui.css">
+  <link rel="stylesheet" href="./swagger-ui.css">
 </head>
 <body>
   <div id="swagger-ui"></div>
 
-  <script src="/docs/swagger-ui-bundle.js"></script>
-  <script src="/docs/swagger-ui-standalone-preset.js"></script>
+  <script src="./swagger-ui-bundle.js"></script>
+  <script src="./swagger-ui-standalone-preset.js"></script>
   <script>
     window.onload = () => {
       SwaggerUIBundle({
-        url: "/openapi.yaml",
+        url: "./openapi.yaml",
         dom_id: "#swagger-ui",
         deepLinking: true,
         persistAuthorization: true,
