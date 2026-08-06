@@ -1,6 +1,7 @@
 CREATE TABLE experiments (
     id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name        VARCHAR(128) NOT NULL,
+    description    TEXT,
     created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 
     PRIMARY KEY (id)
@@ -10,6 +11,7 @@ CREATE TABLE runs (
     id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
     experiment_id  INT UNSIGNED NOT NULL,
     name           VARCHAR(128),
+    description    TEXT,
     status         TINYINT UNSIGNED NOT NULL DEFAULT 0,
     created_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     ended_at       DATETIME(6),
