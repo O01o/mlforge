@@ -55,20 +55,3 @@ CREATE TABLE plots (
         REFERENCES metrics(id)
         ON DELETE CASCADE
 );
-
-CREATE TABLE artifacts (
-    id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    run_id        INT UNSIGNED NOT NULL,
-    path          VARCHAR(1024) NOT NULL,
-    object_uri    VARCHAR(2048) NOT NULL,
-    size_bytes    BIGINT UNSIGNED,
-    content_type  VARCHAR(255),
-    checksum      BINARY(32),
-    created_at    DATETIME(6) NOT NULL,
-
-    PRIMARY KEY (id),
-    UNIQUE KEY uq_artifact_path (run_id, path),
-    FOREIGN KEY (run_id)
-        REFERENCES runs(id)
-        ON DELETE CASCADE
-);

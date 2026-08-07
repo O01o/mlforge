@@ -6,8 +6,8 @@ info:
   description: |
     A lightweight, language-independent experiment tracking API.
 
-    MLforge manages experiments, runs, parameters, metrics, plots,
-    and artifact metadata for machine learning and other computational workloads.
+    MLforge manages experiments, runs, parameters, metrics, and plots
+    metadata for machine learning and other computational workloads.
 
 servers:
   - url: http://localhost:8080/api/v1
@@ -19,7 +19,6 @@ tags:
   - name: Runs
   - name: Parameters
   - name: Metrics
-  - name: Artifacts
 
 paths:
   /health:
@@ -133,9 +132,6 @@ paths:
       summary: Delete an experiment
       description: |
         Deletes the experiment and its associated runs.
-
-        Artifact object deletion behavior is implementation-dependent and
-        should be documented separately.
       responses:
         "204":
           description: Experiment deleted
@@ -620,166 +616,6 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /runs/{runId}/artifacts:
-    parameters:
-      - $ref: "#/components/parameters/RunId"
-
-    get:
-      tags:
-        - Artifacts
-      operationId: listArtifacts
-      summary: List artifact metadata
-      parameters:
-        - name: prefix
-          in: query
-          required: false
-          description: Filter artifact paths by prefix
-          schema:
-            type: string
-            maxLength: 1024
-        - $ref: "#/components/parameters/Limit"
-        - $ref: "#/components/parameters/AfterId"
-      responses:
-        "200":
-          description: Artifact list
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ArtifactListResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-    post:
-      tags:
-        - Artifacts
-      operationId: createArtifact
-      summary: Register artifact metadata
-      description: |
-        Registers metadata for an object that has already been uploaded.
-
-        For direct object storage uploads, create an upload URL first and call
-        this operation after the upload succeeds.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateArtifactRequest"
-      responses:
-        "201":
-          description: Artifact registered
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Artifact"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        "409":
-          description: Artifact path already exists
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-  /runs/{runId}/artifacts:prepare-upload:
-    parameters:
-      - $ref: "#/components/parameters/RunId"
-
-    post:
-      tags:
-        - Artifacts
-      operationId: prepareArtifactUpload
-      summary: Create a direct artifact upload URL
-      description: |
-        Creates an upload URL for the configured artifact storage backend.
-
-        Local-storage deployments may return an MLforge API upload URL instead
-        of an object-storage signed URL.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PrepareArtifactUploadRequest"
-      responses:
-        "200":
-          description: Upload URL created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PrepareArtifactUploadResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        "409":
-          description: Artifact path already exists
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-  /runs/{runId}/artifacts/{artifactId}:
-    parameters:
-      - $ref: "#/components/parameters/RunId"
-      - $ref: "#/components/parameters/ArtifactId"
-
-    get:
-      tags:
-        - Artifacts
-      operationId: getArtifact
-      summary: Get artifact metadata
-      responses:
-        "200":
-          description: Artifact details
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Artifact"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-    delete:
-      tags:
-        - Artifacts
-      operationId: deleteArtifact
-      summary: Delete artifact metadata and its stored object
-      responses:
-        "204":
-          description: Artifact deleted
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-  /runs/{runId}/artifacts/{artifactId}/download:
-    parameters:
-      - $ref: "#/components/parameters/RunId"
-      - $ref: "#/components/parameters/ArtifactId"
-
-    post:
-      tags:
-        - Artifacts
-      operationId: createArtifactDownloadUrl
-      summary: Create an artifact download URL
-      responses:
-        "200":
-          description: Download URL created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ArtifactDownloadResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
 components:
   parameters:
     ExperimentId:
@@ -793,15 +629,6 @@ components:
 
     RunId:
       name: runId
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-
-    ArtifactId:
-      name: artifactId
       in: path
       required: true
       schema:
@@ -1328,156 +1155,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MetricSeriesPoint"
-
-    Artifact:
-      type: object
-      required:
-        - id
-        - runId
-        - path
-        - objectUri
-        - createdAt
-      properties:
-        id:
-          type: integer
-          format: int64
-          minimum: 1
-        runId:
-          type: integer
-          format: int64
-          minimum: 1
-        path:
-          type: string
-          minLength: 1
-          maxLength: 1024
-        objectUri:
-          type: string
-          minLength: 1
-          maxLength: 2048
-        sizeBytes:
-          type:
-            - integer
-            - "null"
-          format: int64
-          minimum: 0
-        contentType:
-          type:
-            - string
-            - "null"
-          maxLength: 255
-        checksumSha256:
-          type:
-            - string
-            - "null"
-          pattern: "^[A-Fa-f0-9]{64}$"
-        createdAt:
-          type: string
-          format: date-time
-
-    CreateArtifactRequest:
-      type: object
-      additionalProperties: false
-      required:
-        - path
-        - objectUri
-      properties:
-        path:
-          type: string
-          minLength: 1
-          maxLength: 1024
-        objectUri:
-          type: string
-          minLength: 1
-          maxLength: 2048
-        sizeBytes:
-          type: integer
-          format: int64
-          minimum: 0
-        contentType:
-          type: string
-          maxLength: 255
-        checksumSha256:
-          type: string
-          pattern: "^[A-Fa-f0-9]{64}$"
-
-    ArtifactListResponse:
-      type: object
-      required:
-        - artifacts
-        - hasMore
-      properties:
-        artifacts:
-          type: array
-          items:
-            $ref: "#/components/schemas/Artifact"
-        hasMore:
-          type: boolean
-        nextAfterId:
-          type:
-            - integer
-            - "null"
-          format: int64
-
-    PrepareArtifactUploadRequest:
-      type: object
-      additionalProperties: false
-      required:
-        - path
-      properties:
-        path:
-          type: string
-          minLength: 1
-          maxLength: 1024
-        contentType:
-          type: string
-          maxLength: 255
-        sizeBytes:
-          type: integer
-          format: int64
-          minimum: 0
-        checksumSha256:
-          type: string
-          pattern: "^[A-Fa-f0-9]{64}$"
-
-    PrepareArtifactUploadResponse:
-      type: object
-      required:
-        - method
-        - uploadUrl
-        - objectUri
-        - expiresAt
-      properties:
-        method:
-          type: string
-          enum:
-            - PUT
-            - POST
-        uploadUrl:
-          type: string
-          format: uri
-        objectUri:
-          type: string
-          maxLength: 2048
-        expiresAt:
-          type: string
-          format: date-time
-        headers:
-          type: object
-          additionalProperties:
-            type: string
-
-    ArtifactDownloadResponse:
-      type: object
-      required:
-        - downloadUrl
-        - expiresAt
-      properties:
-        downloadUrl:
-          type: string
-          format: uri
-        expiresAt:
-          type: string
-          format: date-time
 
     Error:
       type: object
