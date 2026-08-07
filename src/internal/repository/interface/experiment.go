@@ -1,4 +1,4 @@
-package rdi
+package ri
 
 import m "mlforge/internal/model"
 

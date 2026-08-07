@@ -1,4 +1,4 @@
-package rdi
+package ri
 
 type RunRepository interface {
 }

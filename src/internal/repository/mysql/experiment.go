@@ -1,9 +1,9 @@
-package rdm
+package rm
 
 import (
 	m "mlforge/internal/model"
 	qm "mlforge/internal/query/mysql"
-	ri "mlforge/internal/repository/db/interface"
+	ri "mlforge/internal/repository/interface"
 
 	"github.com/jmoiron/sqlx"
 )

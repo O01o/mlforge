@@ -1,7 +1,7 @@
 package sem
 
 import (
-	rm "mlforge/internal/repository/db/mysql"
+	rm "mlforge/internal/repository/mysql"
 	sei "mlforge/internal/service/interface"
 
 	"github.com/jmoiron/sqlx"
