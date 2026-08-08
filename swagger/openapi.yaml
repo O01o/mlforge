@@ -10,15 +10,14 @@ info:
     metadata for machine learning and other computational workloads.
 
 servers:
-  - url: http://localhost:8080/api/v1
+  - url: http://localhost:8080/api
     description: Local development server
 
 tags:
   - name: System
   - name: Experiments
   - name: Runs
-  - name: Parameters
-  - name: Metrics
+  - name: MetricPlots
 
 paths:
   /health:
@@ -35,15 +34,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthResponse"
 
-  /experiments:
+  /:
     get:
       tags:
         - Experiments
       operationId: listExperiments
       summary: List experiments
-      parameters:
-        - $ref: "#/components/parameters/Limit"
-        - $ref: "#/components/parameters/AfterId"
       responses:
         "200":
           description: Experiment list
@@ -64,14 +60,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateExperimentRequest"
+              $ref: "#/components/schemas/ExperimentRequest"
       responses:
         "201":
           description: Experiment created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Experiment"
         "409":
           description: Experiment name already exists
           content:
@@ -81,13 +73,14 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /experiments/{experimentId}:
+  /{experimentId}:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
 
     get:
       tags:
         - Experiments
+        - Runs
       operationId: getExperiment
       summary: Get an experiment
       responses:
@@ -96,7 +89,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Experiment"
+                $ref: "#/components/schemas/ExperimentDetailsResponse"
         "404":
           $ref: "#/components/responses/NotFoundResponse"
         default:
@@ -112,14 +105,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateExperimentRequest"
+              $ref: "#/components/schemas/ExperimentRequest"
       responses:
-        "200":
+        "204":
           description: Experiment updated
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Experiment"
         "404":
           $ref: "#/components/responses/NotFoundResponse"
         default:
@@ -140,30 +129,23 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /experiments/{experimentId}/runs:
+  /{experimentId}/{runId}:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
+      - $ref: "#/components/parameters/RunId"
 
     get:
       tags:
         - Runs
       operationId: listRuns
       summary: List runs in an experiment
-      parameters:
-        - name: status
-          in: query
-          required: false
-          schema:
-            $ref: "#/components/schemas/RunStatus"
-        - $ref: "#/components/parameters/Limit"
-        - $ref: "#/components/parameters/AfterId"
       responses:
         "200":
           description: Run list
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RunListResponse"
+                $ref: "#/components/schemas/RunDetailsResponse"
         "404":
           $ref: "#/components/responses/NotFoundResponse"
         default:
@@ -179,73 +161,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateRunRequest"
+              $ref: "#/components/schemas/RunRequest"
       responses:
         "201":
           description: Run created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Run"
         "404":
           $ref: "#/components/responses/NotFoundResponse"
         default:
           $ref: "#/components/responses/ErrorResponse"
-
-  /runs/{runId}:
-    parameters:
-      - $ref: "#/components/parameters/RunId"
-
-    get:
-      tags:
-        - Runs
-      operationId: getRun
-      summary: Get a run
-      responses:
-        "200":
-          description: Run details
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Run"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-    patch:
-      tags:
-        - Runs
-      operationId: updateRun
-      summary: Update mutable run metadata
-      description: |
-        Updates run metadata such as its name.
-
-        Run status transitions should use the dedicated finish and fail
-        operations instead.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdateRunRequest"
-      responses:
-        "200":
-          description: Run updated
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Run"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
+    
     delete:
       tags:
         - Runs
       operationId: deleteRun
       summary: Delete a run
+      description: |
+        Deletes the run and its associated parameters and metrics.
       responses:
         "204":
           description: Run deleted
@@ -254,28 +185,18 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /runs/{runId}/finish:
+  /{experimentId}/{runId}/finish:
     parameters:
       - $ref: "#/components/parameters/RunId"
 
-    post:
+    put:
       tags:
         - Runs
       operationId: finishRun
       summary: Mark a run as completed
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FinishRunRequest"
       responses:
-        "200":
+        "204":
           description: Run completed
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Run"
         "404":
           $ref: "#/components/responses/NotFoundResponse"
         "409":
@@ -287,11 +208,12 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /runs/{runId}/fail:
+  /{experimentId}/{runId}/fail:
     parameters:
+      - $ref: "#/components/parameters/ExperimentId"
       - $ref: "#/components/parameters/RunId"
 
-    post:
+    put:
       tags:
         - Runs
       operationId: failRun
@@ -303,12 +225,8 @@ paths:
             schema:
               $ref: "#/components/schemas/FailRunRequest"
       responses:
-        "200":
+        "204":
           description: Run marked as failed
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Run"
         "404":
           $ref: "#/components/responses/NotFoundResponse"
         "409":
@@ -320,142 +238,23 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /runs/{runId}/parameters:
+  /{experimentId}/{runId}/{metricId}:
     parameters:
+      - $ref: "#/components/parameters/ExperimentId"
       - $ref: "#/components/parameters/RunId"
+      - $ref: "#/components/parameters/MetricId"
 
     get:
       tags:
-        - Parameters
-      operationId: listParameters
-      summary: List run parameters
-      responses:
-        "200":
-          description: Parameter list
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ParameterListResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-    put:
-      tags:
-        - Parameters
-      operationId: putParameters
-      summary: Create or replace run parameters
-      description: |
-        Registers multiple parameters in one transaction.
-
-        Parameter names are unique within a run. Existing values with the same
-        names are replaced.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PutParametersRequest"
-      responses:
-        "200":
-          description: Parameters registered
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ParameterListResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        "409":
-          description: Run no longer accepts parameter updates
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-  /runs/{runId}/metrics:
-    parameters:
-      - $ref: "#/components/parameters/RunId"
-
-    get:
-      tags:
-        - Metrics
-      operationId: listMetrics
-      summary: List metrics defined in a run
-      responses:
-        "200":
-          description: Metric list
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MetricListResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-  /runs/{runId}/metrics:batch:
-    parameters:
-      - $ref: "#/components/parameters/RunId"
-
-    post:
-      tags:
-        - Metrics
-      operationId: writeMetricBatch
-      summary: Write plots in a batch
-      description: |
-        Registers plots in one database transaction.
-
-        A metric definition is created automatically when a metric name does
-        not yet exist in the run.
-
-        The recommended batch size is 100 to 1,000 points. The server may
-        reject requests exceeding the configured maximum batch size.
-
-        A point is identified by the combination of run, metric name, and step.
-        Re-sending the same point replaces its value and recorded timestamp.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/WriteMetricBatchRequest"
-      responses:
-        "200":
-          description: plots registered
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WriteMetricBatchResponse"
-        "400":
-          description: Invalid or oversized batch
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        "409":
-          description: Run no longer accepts metric updates
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-  /runs/{runId}/metrics/{metricName}:
-    parameters:
-      - $ref: "#/components/parameters/RunId"
-      - $ref: "#/components/parameters/MetricName"
-
-    get:
-      tags:
-        - Metrics
+        - MetricPlots
       operationId: getMetric
       summary: Get metric metadata and its latest point
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MetricPlotRangeRequest"
       responses:
         "200":
           description: Metric details
@@ -468,149 +267,20 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-    delete:
+    post:
       tags:
-        - Metrics
-      operationId: deleteMetric
-      summary: Delete a metric and its points
+        - MetricPlots
+      operationId: postMetric
+      summary: Post metric plots
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MetricPlotsRequest"
       responses:
         "204":
-          description: Metric deleted
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-  /runs/{runId}/metrics/{metricName}/points:
-    parameters:
-      - $ref: "#/components/parameters/RunId"
-      - $ref: "#/components/parameters/MetricName"
-
-    get:
-      tags:
-        - Metrics
-      operationId: getMetricPoints
-      summary: Get plots by step range
-      description: |
-        Returns raw plots ordered by step.
-
-        The number of returned points is limited. Cursor pagination uses the
-        last returned step instead of OFFSET.
-      parameters:
-        - name: fromStep
-          in: query
-          required: false
-          description: Inclusive lower step boundary
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-            default: 0
-        - name: toStep
-          in: query
-          required: false
-          description: Inclusive upper step boundary
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-        - name: afterStep
-          in: query
-          required: false
-          description: |
-            Return points whose step is greater than this value.
-
-            Used for cursor-based pagination.
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 10000
-            default: 1000
-      responses:
-        "200":
-          description: plots
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MetricPointListResponse"
-        "400":
-          description: Invalid step range
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
-  /runs/{runId}/metrics/{metricName}/series:
-    parameters:
-      - $ref: "#/components/parameters/RunId"
-      - $ref: "#/components/parameters/MetricName"
-
-    get:
-      tags:
-        - Metrics
-      operationId: getMetricSeries
-      summary: Get a display-oriented metric series
-      description: |
-        Returns a metric series suitable for plotting.
-
-        The server returns no more than the requested resolution. It may use
-        raw points, downsampling, or precomputed rollups internally.
-
-        This endpoint does not guarantee that every stored point is returned.
-      parameters:
-        - name: fromStep
-          in: query
-          required: false
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-            default: 0
-        - name: toStep
-          in: query
-          required: false
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-        - name: resolution
-          in: query
-          required: false
-          description: Maximum number of points or buckets to return
-          schema:
-            type: integer
-            minimum: 10
-            maximum: 10000
-            default: 1000
-        - name: aggregation
-          in: query
-          required: false
-          schema:
-            $ref: "#/components/schemas/SeriesAggregation"
-      responses:
-        "200":
-          description: Display-oriented metric series
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MetricSeriesResponse"
-        "400":
-          description: Invalid step range or resolution
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          description: Metric updated
         "404":
           $ref: "#/components/responses/NotFoundResponse"
         default:
@@ -636,31 +306,10 @@ components:
         format: int64
         minimum: 1
 
-    MetricName:
-      name: metricName
+    MetricId:
+      name: metricId
       in: path
       required: true
-      schema:
-        type: string
-        minLength: 1
-        maxLength: 128
-        pattern: "^[A-Za-z0-9._/-]+$"
-
-    Limit:
-      name: limit
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 1000
-        default: 100
-
-    AfterId:
-      name: afterId
-      in: query
-      required: false
-      description: Return records whose ID is greater than this value
       schema:
         type: integer
         format: int64
@@ -696,38 +345,44 @@ components:
           type: string
           example: 0.1.0
 
-    Experiment:
+    RunStatus:
+      type: integer
+      enum:
+        - 0 # running
+        - 1 # completed
+        - 2 # failed
+
+    Parameter:
       type: object
+      additionalProperties: false
       required:
-        - id
         - name
-        - createdAt
+        - value
       properties:
-        id:
+        name:
+          type: string
+          maxLength: 128
+        value:
+          type: string
+          maxLength: 128
+    
+    MetricPlot:
+      type: object
+      additionalProperties: false
+      required:
+        - step
+        - value
+      properties:
+        step:
           type: integer
           format: int64
-          minimum: 1
-        name:
-          type: string
-          minLength: 1
-          maxLength: 128
-        description:
-          type:
-            - string
-            - "null"
-          maxLength: 4096
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type:
-            - string
-            - "null"
-          format: date-time
-
-    CreateExperimentRequest:
+          minimum: 0
+        value:
+          type: number
+          format: double
+    
+    Metric:
       type: object
-      additionalProperties: false
       required:
         - name
       properties:
@@ -735,59 +390,20 @@ components:
           type: string
           minLength: 1
           maxLength: 128
-        description:
-          type: string
-          maxLength: 4096
-
-    UpdateExperimentRequest:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 128
-        description:
-          type:
-            - string
-            - "null"
-          maxLength: 4096
-
-    ExperimentListResponse:
-      type: object
-      required:
-        - experiments
-        - hasMore
-      properties:
-        experiments:
+        plots:
           type: array
           items:
-            $ref: "#/components/schemas/Experiment"
-        hasMore:
-          type: boolean
-        nextAfterId:
-          type:
-            - integer
-            - "null"
-          format: int64
-
-    RunStatus:
-      type: string
-      enum:
-        - running
-        - completed
-        - failed
-        - cancelled
-
-    Run:
+            $ref: "#/components/schemas/MetricPlot"
+    
+    RunSummary:
       type: object
       required:
         - id
         - experimentId
         - status
         - startedAt
-        - createdAt
+        - endedAt
+        - failureReason
       properties:
         id:
           type: integer
@@ -817,6 +433,26 @@ components:
             - string
             - "null"
           maxLength: 4096
+    
+    ExperimentSummary:
+      type: object
+      required:
+        - experimentId
+        - name
+        - description
+        - createdAt
+      properties:
+        experimentId:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          maxLength: 4096
         createdAt:
           type: string
           format: date-time
@@ -826,66 +462,46 @@ components:
             - "null"
           format: date-time
 
-    CreateRunRequest:
+    ExperimentRequest:
       type: object
       additionalProperties: false
+      required:
+        - name
       properties:
         name:
           type: string
+          minLength: 1
           maxLength: 128
-        startedAt:
-          type: string
-          format: date-time
-
-    UpdateRunRequest:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        name:
-          type:
-            - string
-            - "null"
-          maxLength: 128
-
-    FinishRunRequest:
-      type: object
-      additionalProperties: false
-      properties:
-        endedAt:
-          type: string
-          format: date-time
-
-    FailRunRequest:
-      type: object
-      additionalProperties: false
-      properties:
-        endedAt:
-          type: string
-          format: date-time
-        reason:
+        description:
           type: string
           maxLength: 4096
 
-    RunListResponse:
+    ExperimentListResponse:
       type: object
       required:
-        - runs
-        - hasMore
+        - experiments
       properties:
-        runs:
+        experiments:
           type: array
           items:
-            $ref: "#/components/schemas/Run"
-        hasMore:
-          type: boolean
-        nextAfterId:
-          type:
-            - integer
-            - "null"
-          format: int64
-
-    Parameter:
+            $ref: "#/components/schemas/ExperimentSummary"
+    
+    ExperimentDetailsResponse:
+      type: object
+      required:
+        - experimentId
+        - name
+        - description
+        - createdAt
+      properties:
+        experimentSummary:
+          $ref: "#/components/schemas/ExperimentSummary"
+        runSummaries:
+          type: array
+          items:
+            $ref: "#/components/schemas/RunSummary"
+    
+    ParameterRequest:
       type: object
       additionalProperties: false
       required:
@@ -894,267 +510,91 @@ components:
       properties:
         name:
           type: string
-          minLength: 1
           maxLength: 128
         value:
           type: string
-          maxLength: 65535
-
-    PutParametersRequest:
-      type: object
-      additionalProperties: false
-      required:
-        - parameters
-      properties:
-        parameters:
-          type: array
-          minItems: 1
-          maxItems: 1000
-          items:
-            $ref: "#/components/schemas/Parameter"
-
-    ParameterListResponse:
+          maxLength: 128
+    
+    MetricRequest:
       type: object
       required:
-        - parameters
-      properties:
-        parameters:
-          type: array
-          items:
-            $ref: "#/components/schemas/Parameter"
-
-    Metric:
-      type: object
-      required:
-        - id
-        - runId
         - name
       properties:
-        id:
-          type: integer
-          format: int64
-          minimum: 1
-        runId:
-          type: integer
-          format: int64
-          minimum: 1
         name:
           type: string
           minLength: 1
           maxLength: 128
-        pointCount:
-          type: integer
-          format: int64
-          minimum: 0
-        minimumStep:
-          type:
-            - integer
-            - "null"
-          format: int64
-          minimum: 0
-        maximumStep:
-          type:
-            - integer
-            - "null"
-          format: int64
-          minimum: 0
-        latestValue:
-          type:
-            - number
-            - "null"
-          format: double
 
-    MetricDetail:
-      allOf:
-        - $ref: "#/components/schemas/Metric"
-        - type: object
-          properties:
-            latestPoint:
-              oneOf:
-                - $ref: "#/components/schemas/MetricPoint"
-                - type: "null"
-
-    MetricListResponse:
+    RunRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          maxLength: 128
+        description:
+          type: string
+          maxLength: 4096
+        parameters:
+          type: array
+          items:
+            $ref: "#/components/schemas/ParameterRequest"
+        metrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricRequest"
+    
+    RunDetailsResponse:
       type: object
       required:
+        - runSummary
+        - parameters
         - metrics
       properties:
+        runSummary:
+          $ref: "#/components/schemas/RunSummary"
+        parameters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Parameter"
         metrics:
           type: array
           items:
             $ref: "#/components/schemas/Metric"
 
-    MetricPoint:
+    FailRunRequest:
       type: object
       additionalProperties: false
-      required:
-        - step
-        - value
       properties:
-        step:
-          type: integer
-          format: int64
-          minimum: 0
-        value:
-          type: number
-          format: double
-        recordedAt:
-          type:
-            - string
-            - "null"
-          format: date-time
-
-    MetricPointInput:
+        failureReason:
+          type: string
+          maxLength: 4096
+    
+    MetricPlotRangeRequest:
       type: object
       additionalProperties: false
-      required:
-        - name
-        - step
-        - value
       properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 128
-          pattern: "^[A-Za-z0-9._/-]+$"
-        step:
+        startStep:
           type: integer
           format: int64
           minimum: 0
-        value:
-          type: number
-          format: double
-        recordedAt:
-          type: string
-          format: date-time
-
-    WriteMetricBatchRequest:
-      type: object
-      additionalProperties: false
-      required:
-        - points
-      properties:
-        points:
-          type: array
-          minItems: 1
-          maxItems: 1000
-          items:
-            $ref: "#/components/schemas/MetricPointInput"
-
-    WriteMetricBatchResponse:
-      type: object
-      required:
-        - accepted
-        - createdMetrics
-        - replacedPoints
-      properties:
-        accepted:
-          type: integer
-          minimum: 0
-        createdMetrics:
-          type: integer
-          minimum: 0
-        replacedPoints:
-          type: integer
-          minimum: 0
-
-    MetricPointListResponse:
-      type: object
-      required:
-        - metricName
-        - points
-        - hasMore
-      properties:
-        metricName:
-          type: string
-        points:
-          type: array
-          items:
-            $ref: "#/components/schemas/MetricPoint"
-        hasMore:
-          type: boolean
-        nextAfterStep:
-          type:
-            - integer
-            - "null"
-          format: int64
-
-    SeriesAggregation:
-      type: string
-      enum:
-        - raw
-        - average
-        - min-max-average
-      default: min-max-average
-
-    MetricSeriesPoint:
-      type: object
-      required:
-        - fromStep
-        - toStep
-        - pointCount
-      properties:
-        fromStep:
+          default: 0
+        endStep:
           type: integer
           format: int64
-          minimum: 0
-        toStep:
-          type: integer
-          format: int64
-          minimum: 0
-        pointCount:
-          type: integer
           minimum: 1
-        value:
-          type: number
-          format: double
-          description: Present when aggregation is raw or average
-        minimum:
-          type: number
-          format: double
-          description: Present when aggregation is min-max-average
-        maximum:
-          type: number
-          format: double
-          description: Present when aggregation is min-max-average
-        average:
-          type: number
-          format: double
-          description: Present when aggregation is min-max-average
-        first:
-          type: number
-          format: double
-        last:
-          type: number
-          format: double
+          default: 1000
 
-    MetricSeriesResponse:
+    MetricPlotsRequest:
       type: object
+      additionalProperties: false
       required:
-        - metricName
-        - aggregation
-        - requestedResolution
-        - actualPointCount
-        - series
+        - plots
       properties:
-        metricName:
-          type: string
-        aggregation:
-          $ref: "#/components/schemas/SeriesAggregation"
-        requestedResolution:
-          type: integer
-          minimum: 1
-        actualPointCount:
-          type: integer
-          minimum: 0
-        sourcePointCount:
-          type: integer
-          format: int64
-          minimum: 0
-        series:
+        plots:
           type: array
           items:
-            $ref: "#/components/schemas/MetricSeriesPoint"
+            $ref: "#/components/schemas/MetricPlot"
 
     Error:
       type: object
