@@ -244,29 +244,6 @@ paths:
       - $ref: "#/components/parameters/RunId"
       - $ref: "#/components/parameters/MetricId"
 
-    get:
-      tags:
-        - MetricPlots
-      operationId: getMetric
-      summary: Get metric metadata and its latest point
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MetricPlotRangeRequest"
-      responses:
-        "200":
-          description: Metric details
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MetricDetail"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-
     post:
       tags:
         - MetricPlots
@@ -380,6 +357,21 @@ components:
         value:
           type: number
           format: double
+    
+    MetricPlotRange:
+      type: object
+      additionalProperties: false
+      properties:
+        startStep:
+          type: integer
+          format: int64
+          minimum: 0
+          default: 0
+        endStep:
+          type: integer
+          format: int64
+          minimum: 1
+          default: 1000
     
     Metric:
       type: object
@@ -561,6 +553,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Metric"
+        plotRanges:
+          $ref: "#/components/schemas/MetricPlotRange"
 
     FailRunRequest:
       type: object
@@ -569,21 +563,6 @@ components:
         failureReason:
           type: string
           maxLength: 4096
-    
-    MetricPlotRangeRequest:
-      type: object
-      additionalProperties: false
-      properties:
-        startStep:
-          type: integer
-          format: int64
-          minimum: 0
-          default: 0
-        endStep:
-          type: integer
-          format: int64
-          minimum: 1
-          default: 1000
 
     MetricPlotsRequest:
       type: object
