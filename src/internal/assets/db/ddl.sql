@@ -1,14 +1,15 @@
 CREATE TABLE experiments (
-    id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    experiment_id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name        VARCHAR(128) NOT NULL,
     description    TEXT,
     created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 
     PRIMARY KEY (id)
 );
 
 CREATE TABLE runs (
-    id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    run_id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
     experiment_id  INT UNSIGNED NOT NULL,
     name           VARCHAR(128),
     description    TEXT,
@@ -16,32 +17,32 @@ CREATE TABLE runs (
     created_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     ended_at       DATETIME(6),
 
-    PRIMARY KEY (id),
+    PRIMARY KEY (run_id),
     FOREIGN KEY (experiment_id)
-        REFERENCES experiments(id)
+        REFERENCES experiments(experiment_id)
         ON DELETE CASCADE
 );
 
 CREATE TABLE parameters (
-    id      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    parameter_id      INT UNSIGNED NOT NULL AUTO_INCREMENT,
     run_id  INT UNSIGNED NOT NULL,
     name    VARCHAR(128) NOT NULL,
     value   TEXT NOT NULL,
 
-    PRIMARY KEY (id),
+    PRIMARY KEY (parameter_id),
     FOREIGN KEY (run_id)
-        REFERENCES runs(id)
+        REFERENCES runs(run_id)
         ON DELETE CASCADE
 );
 
 CREATE TABLE metrics (
-    id      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    metric_id      INT UNSIGNED NOT NULL AUTO_INCREMENT,
     run_id  INT UNSIGNED NOT NULL,
     name    VARCHAR(128) NOT NULL,
 
-    PRIMARY KEY (id),
+    PRIMARY KEY (metric_id),
     FOREIGN KEY (run_id)
-        REFERENCES runs(id)
+        REFERENCES runs(run_id)
         ON DELETE CASCADE
 );
 
@@ -52,6 +53,6 @@ CREATE TABLE plots (
 
     PRIMARY KEY (metric_id, step) CLUSTERED,
     FOREIGN KEY (metric_id)
-        REFERENCES metrics(id)
+        REFERENCES metrics(metric_id)
         ON DELETE CASCADE
 );

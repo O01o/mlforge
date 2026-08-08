@@ -5,13 +5,11 @@ INSERT INTO experiments (name, description) VALUES (?, ?);
 `
 
 const ExperimentGetListQuery = `
-SELECT experiment_id, experiment_name, experiment_description
-FROM experiments;
+SELECT * FROM experiments;
 `
 
 const ExperimentGetByIDQuery = `
-SELECT experiment_id, experiment_name, experiment_description
-FROM experiments 
+SELECT * FROM experiments 
 WHERE experiment_id = ?;
 `
 
