@@ -5,7 +5,7 @@ CREATE TABLE experiments (
     created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 
-    PRIMARY KEY (id)
+    PRIMARY KEY (experiment_id)
 );
 
 CREATE TABLE runs (
@@ -13,8 +13,9 @@ CREATE TABLE runs (
     experiment_id  INT UNSIGNED NOT NULL,
     name           VARCHAR(128),
     description    TEXT,
+    failure_reason  TEXT,
     status         TINYINT UNSIGNED NOT NULL DEFAULT 0,
-    created_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    started_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     ended_at       DATETIME(6),
 
     PRIMARY KEY (run_id),
@@ -27,7 +28,7 @@ CREATE TABLE parameters (
     parameter_id      INT UNSIGNED NOT NULL AUTO_INCREMENT,
     run_id  INT UNSIGNED NOT NULL,
     name    VARCHAR(128) NOT NULL,
-    value   TEXT NOT NULL,
+    value   VARCHAR(128) NOT NULL,
 
     PRIMARY KEY (parameter_id),
     FOREIGN KEY (run_id)
