@@ -2,20 +2,20 @@
 # MLforge Swagger
 # --------------------------------------------------
 
-FROM node:24-alpine AS swagger
+FROM node:20-alpine AS swagger
 
-WORKDIR /swagger
+WORKDIR /work
 
-RUN npm init -y \
-    && npm install swagger-ui-dist
+COPY ./swagger/package.json ./swagger/package-lock.json ./
+RUN npm ci
+COPY . .
 
-RUN mkdir -p /out \
-    && cp node_modules/swagger-ui-dist/swagger-ui.css /out/ \
-    && cp node_modules/swagger-ui-dist/swagger-ui-bundle.js /out/ \
-    && cp node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js /out/
-
-COPY /index.html /out/index.html
-
+RUN mkdir -p /out
+COPY ./swagger/index.html /out/index.html
+COPY ./swagger/openapi.yaml /out/openapi.yaml
+COPY ./swagger/node_modules/swagger-ui-dist/swagger-ui.css /out/swagger-ui.css
+COPY ./swagger/node_modules/swagger-ui-dist/swagger-ui-bundle.js /out/swagger-ui-bundle.js
+COPY ./swagger/node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js /out/swagger-ui-standalone-preset.js
 
 
 # --------------------------------------------------
@@ -26,17 +26,30 @@ FROM golang:1.25-alpine AS backend
 
 WORKDIR /src
 
-COPY src/go.mod src/go.sum ./
+COPY ./src/go.mod ./src/go.sum ./
 RUN go mod download
+
+ENV CGO_ENABLED=0 GOOS=linux
 
 COPY src/ .
 
-# COPY --from=frontend /web/build ./internal/assets/frontend
-
 # import swagger-ui-dist assets into the backend image
 RUN mkdir -p ./internal/assets/swagger
-COPY /api/openapi.yaml ./internal/assets/openapi.yaml
-COPY --from=swagger /out ./internal/assets/swagger
+COPY --from=swagger /out/index.html ./internal/assets/swagger/index.html
+COPY --from=swagger /out/openapi.yaml ./internal/assets/swagger/openapi.yaml
+COPY --from=swagger /out/swagger-ui.css ./internal/assets/swagger/swagger-ui.css
+COPY --from=swagger /out/swagger-ui-bundle.js ./internal/assets/swagger/swagger-ui-bundle.js
+COPY --from=swagger /out/swagger-ui-standalone-preset.js ./internal/assets/swagger/swagger-ui-standalone-preset.js
+
+# ENV DB_HOST
+# ENV DB_PORT
+# ENV DB_USER
+# ENV DB_PASSWORD
+# ENV DB_NAME
+# ENV DB_TLS
+# ENV DB_CA_CERT
+# ENV DB_CLIENT_CERT
+# ENV DB_CLIENT_KEY
 
 RUN CGO_ENABLED=0 GOOS=linux \
     go build \
@@ -44,6 +57,7 @@ RUN CGO_ENABLED=0 GOOS=linux \
     -ldflags="-s -w" \
     -o /out/mlforge \
     ./cmd/server
+
 
 FROM scratch
 
