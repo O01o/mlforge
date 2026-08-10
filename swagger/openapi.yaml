@@ -9,10 +9,6 @@ info:
     MLforge manages experiments, runs, parameters, metrics, and plots
     metadata for machine learning and other computational workloads.
 
-servers:
-  - url: http://localhost:8080/api
-    description: Local development server
-
 tags:
   - name: System
   - name: Experiments
@@ -34,7 +30,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthResponse"
 
-  /:
+  /api:
     get:
       tags:
         - Experiments
@@ -73,7 +69,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /{experimentId}:
+  /api/{experimentId}:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
 
@@ -128,7 +124,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /{experimentId}/{runId}:
+  /api/{experimentId}/{runId}:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
       - $ref: "#/components/parameters/RunId"
@@ -190,7 +186,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /{experimentId}/{runId}/fail:
+  /api/{experimentId}/{runId}/fail:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
       - $ref: "#/components/parameters/RunId"
@@ -220,7 +216,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /{experimentId}/{runId}/{metricId}:
+  /api/{experimentId}/{runId}/{metricId}:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
       - $ref: "#/components/parameters/RunId"
@@ -245,7 +241,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
   
-  /{experimentId}/plots:
+  /api/{experimentId}/plots:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
 

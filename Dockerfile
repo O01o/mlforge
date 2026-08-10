@@ -3,19 +3,18 @@
 # --------------------------------------------------
 
 FROM node:20-alpine AS swagger
-
 WORKDIR /work
 
 COPY ./swagger/package.json ./swagger/package-lock.json ./
 RUN npm ci
-COPY . .
+COPY ./swagger/ ./
 
-RUN mkdir -p /out
-COPY ./swagger/index.html /out/index.html
-COPY ./swagger/openapi.yaml /out/openapi.yaml
-COPY ./swagger/node_modules/swagger-ui-dist/swagger-ui.css /out/swagger-ui.css
-COPY ./swagger/node_modules/swagger-ui-dist/swagger-ui-bundle.js /out/swagger-ui-bundle.js
-COPY ./swagger/node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js /out/swagger-ui-standalone-preset.js
+RUN mkdir -p /out && \
+    cp /work/index.html /out/index.html && \
+    cp /work/openapi.yaml /out/openapi.yaml && \
+    cp /work/node_modules/swagger-ui-dist/swagger-ui.css /out/swagger-ui.css && \
+    cp /work/node_modules/swagger-ui-dist/swagger-ui-bundle.js /out/swagger-ui-bundle.js && \
+    cp /work/node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js /out/swagger-ui-standalone-preset.js
 
 
 # --------------------------------------------------

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -37,7 +38,7 @@ func ConnectDB() *sqlx.DB {
 	}
 
 	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s",
+		"%s:%s@tcp(%s:%s)/%s?parseTime=true&multiStatements=true",
 		config.User,
 		config.Password,
 		config.Host,

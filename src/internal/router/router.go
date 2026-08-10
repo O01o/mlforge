@@ -23,8 +23,8 @@ func NewHTTPServer(addr string, db *sqlx.DB) *http.Server {
 	r.HandleFunc("/openapi.yaml", hhd.GetOpenAPI).Methods("GET")
 
 	hhe := hh.NewExperimentHandler(rm.NewExperimentRepository(db))
-	r.HandleFunc("/experiments", hhe.CreateExperiment).Methods("POST")
-	r.HandleFunc("/experiments/{id:[0-9]+}", hhe.GetExperimentByID).Methods("GET")
+	r.HandleFunc("/api/experiments", hhe.CreateExperiment).Methods("POST")
+	r.HandleFunc("/api/experiments/{id:[0-9]+}", hhe.GetExperimentByID).Methods("GET")
 
 	return &http.Server{
 		Addr:    addr,
