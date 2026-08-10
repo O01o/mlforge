@@ -46,7 +46,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ExperimentListResponse"
+                $ref: "#/components/schemas/ExperimentSummariesResponse"
         default:
           $ref: "#/components/responses/ErrorResponse"
 
@@ -80,7 +80,6 @@ paths:
     get:
       tags:
         - Experiments
-        - Runs
       operationId: getExperiment
       summary: Get an experiment
       responses:
@@ -133,23 +132,6 @@ paths:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
       - $ref: "#/components/parameters/RunId"
-
-    get:
-      tags:
-        - Runs
-      operationId: listRuns
-      summary: List runs in an experiment
-      responses:
-        "200":
-          description: Run list
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RunDetailsResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
 
     post:
       tags:
@@ -254,10 +236,37 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MetricPlotsRequest"
+              $ref: "#/components/schemas/CreateMetricPlotsRequest"
       responses:
         "204":
           description: Metric updated
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  
+  /{experimentId}/plots:
+    parameters:
+      - $ref: "#/components/parameters/ExperimentId"
+
+    get:
+      tags:
+        - MetricPlots
+      operationId: getMetricPlots
+      summary: Get metric plots for an experiment
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetMetricPlotsRequest"
+      responses:
+        "200":
+          description: Metric plots retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetMetricPlotsResponse"
         "404":
           $ref: "#/components/responses/NotFoundResponse"
         default:
@@ -333,9 +342,14 @@ components:
       type: object
       additionalProperties: false
       required:
+        - id
         - name
         - value
       properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
         name:
           type: string
           maxLength: 128
@@ -376,32 +390,28 @@ components:
     Metric:
       type: object
       required:
+        - id
         - name
       properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
         name:
           type: string
           minLength: 1
           maxLength: 128
-        plots:
-          type: array
-          items:
-            $ref: "#/components/schemas/MetricPlot"
     
     RunSummary:
       type: object
       required:
         - id
-        - experimentId
         - status
         - startedAt
         - endedAt
         - failureReason
       properties:
         id:
-          type: integer
-          format: int64
-          minimum: 1
-        experimentId:
           type: integer
           format: int64
           minimum: 1
@@ -426,15 +436,68 @@ components:
             - "null"
           maxLength: 4096
     
+    RunDetails:
+      type: object
+      required:
+        - runSummary
+        - parameters
+        - metricSummaries
+      properties:
+        runSummary:
+          $ref: "#/components/schemas/RunSummary"
+        parameters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Parameter"
+        metrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/Metric"
+    
+    RunMetrics:
+      type: object
+      required:
+        - runId
+        - metricId
+      properties:
+        runId:
+          type: integer
+          format: int64
+          minimum: 1
+        metricId:
+          type: integer
+          format: int64
+          minimum: 1
+    
+    RunMetricPlots:
+      type: object
+      required:
+        - runId
+        - metricId
+        - plots
+      properties:
+        runId:
+          type: integer
+          format: int64
+          minimum: 1
+        metricId:
+          type: integer
+          format: int64
+          minimum: 1
+        plots:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricPlot"
+    
     ExperimentSummary:
       type: object
       required:
-        - experimentId
+        - id
         - name
         - description
         - createdAt
       properties:
-        experimentId:
+        id:
           type: integer
           format: int64
           minimum: 1
@@ -453,6 +516,19 @@ components:
             - string
             - "null"
           format: date-time
+    
+    ExperimentDetails:
+      type: object
+      required:
+        - experimentSummary
+        - runDetails
+      properties:
+        experimentSummary:
+          $ref: "#/components/schemas/ExperimentSummary"
+        runDetails:
+          type: array
+          items:
+            $ref: "#/components/schemas/RunDetails"
 
     ExperimentRequest:
       type: object
@@ -468,12 +544,12 @@ components:
           type: string
           maxLength: 4096
 
-    ExperimentListResponse:
+    ExperimentSummariesResponse:
       type: object
       required:
-        - experiments
+        - experimentSummaries
       properties:
-        experiments:
+        experimentSummaries:
           type: array
           items:
             $ref: "#/components/schemas/ExperimentSummary"
@@ -481,17 +557,10 @@ components:
     ExperimentDetailsResponse:
       type: object
       required:
-        - experimentId
-        - name
-        - description
-        - createdAt
+        - experimentDetails
       properties:
-        experimentSummary:
-          $ref: "#/components/schemas/ExperimentSummary"
-        runSummaries:
-          type: array
-          items:
-            $ref: "#/components/schemas/RunSummary"
+        experimentDetails:
+          $ref: "#/components/schemas/ExperimentDetails"
     
     ParameterRequest:
       type: object
@@ -535,26 +604,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MetricRequest"
-    
-    RunDetailsResponse:
-      type: object
-      required:
-        - runSummary
-        - parameters
-        - metrics
-      properties:
-        runSummary:
-          $ref: "#/components/schemas/RunSummary"
-        parameters:
-          type: array
-          items:
-            $ref: "#/components/schemas/Parameter"
-        metrics:
-          type: array
-          items:
-            $ref: "#/components/schemas/Metric"
-        plotRanges:
-          $ref: "#/components/schemas/MetricPlotRange"
 
     FailRunRequest:
       type: object
@@ -564,7 +613,7 @@ components:
           type: string
           maxLength: 4096
 
-    MetricPlotsRequest:
+    CreateMetricPlotsRequest:
       type: object
       additionalProperties: false
       required:
@@ -574,6 +623,30 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MetricPlot"
+
+    GetMetricPlotsRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - plotRange
+        - runMetrics
+      properties:
+        plotRange:
+          $ref: "#/components/schemas/MetricPlotRange"
+        runMetrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/RunMetrics"
+    
+    GetMetricPlotsResponse:
+      type: object
+      required:
+        - runMetricPlots
+      properties:
+        runMetricPlots:
+          type: array
+          items:
+            $ref: "#/components/schemas/RunMetricPlots"
 
     Error:
       type: object
