@@ -21,8 +21,5 @@ func (r *setupRepository) Setup() error {
 		return err
 	}
 	_, err = r.db.Exec(string(ddl))
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
