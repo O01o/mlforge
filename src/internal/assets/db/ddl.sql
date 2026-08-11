@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS experiments (
     experiment_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(32) NOT NULL,
-    description TEXT,
+    description VARCHAR(512),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (experiment_id)
@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS runs (
     run_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     experiment_id INT UNSIGNED NOT NULL,
     name VARCHAR(32),
-    description TEXT,
-    failure_reason TEXT,
+    description VARCHAR(512),
+    failure_reason VARCHAR(512),
     status TINYINT UNSIGNED NOT NULL DEFAULT 0,
     started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at DATETIME,
