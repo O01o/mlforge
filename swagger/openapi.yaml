@@ -354,19 +354,14 @@ components:
           maxLength: 128
     
     MetricPlot:
-      type: object
-      additionalProperties: false
-      required:
-        - step
-        - value
-      properties:
-        step:
-          type: integer
+      type: array
+      prefixItems:
+        - type: integer
           format: int64
-          minimum: 0
-        value:
-          type: number
+        - type: number
           format: double
+      minItems: 2
+      maxItems: 2
     
     MetricPlotRange:
       type: object
@@ -449,22 +444,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Metric"
-    
-    RunMetrics:
-      type: object
-      required:
-        - runId
-        - metricId
-      properties:
-        runId:
-          type: integer
-          format: int64
-          minimum: 1
-        metricId:
-          type: integer
-          format: int64
-          minimum: 1
-    
+
     RunMetricPlots:
       type: object
       required:
@@ -625,14 +605,16 @@ components:
       additionalProperties: false
       required:
         - plotRange
-        - runMetrics
+        - runIds
       properties:
         plotRange:
           $ref: "#/components/schemas/MetricPlotRange"
-        runMetrics:
+        runIds:
           type: array
           items:
-            $ref: "#/components/schemas/RunMetrics"
+            type: integer
+            format: int64
+            minimum: 1
     
     GetMetricPlotsResponse:
       type: object
