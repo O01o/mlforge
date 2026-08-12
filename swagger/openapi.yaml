@@ -175,7 +175,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /{experimentId}/{runId}/finish:
+  /api/{experimentId}/{runId}/finish:
     parameters:
       - $ref: "#/components/parameters/RunId"
 
