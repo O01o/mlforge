@@ -348,10 +348,10 @@ components:
           minimum: 1
         name:
           type: string
-          maxLength: 128
+          maxLength: 32
         value:
           type: string
-          maxLength: 128
+          maxLength: 32
     
     MetricPlot:
       type: array
@@ -391,16 +391,18 @@ components:
         name:
           type: string
           minLength: 1
-          maxLength: 128
+          maxLength: 32
     
     RunSummary:
       type: object
       required:
         - id
+        - name
+        - description
+        - failureReason
         - status
         - startedAt
         - endedAt
-        - failureReason
       properties:
         id:
           type: integer
@@ -410,7 +412,17 @@ components:
           type:
             - string
             - "null"
-          maxLength: 128
+          maxLength: 32
+        description:
+          type:
+            - string
+            - "null"
+          maxLength: 512
+        failureReason:
+          type:
+            - string
+            - "null"
+          maxLength: 512
         status:
           $ref: "#/components/schemas/RunStatus"
         startedAt:
@@ -421,11 +433,6 @@ components:
             - string
             - "null"
           format: date-time
-        failureReason:
-          type:
-            - string
-            - "null"
-          maxLength: 4096
     
     RunDetails:
       type: object
@@ -480,10 +487,10 @@ components:
         name:
           type: string
           minLength: 1
-          maxLength: 128
+          maxLength: 32
         description:
           type: string
-          maxLength: 4096
+          maxLength: 512
         createdAt:
           type: string
           format: date-time
@@ -515,10 +522,10 @@ components:
         name:
           type: string
           minLength: 1
-          maxLength: 128
+          maxLength: 32
         description:
           type: string
-          maxLength: 4096
+          maxLength: 512
 
     ExperimentSummariesResponse:
       type: object
@@ -547,10 +554,10 @@ components:
       properties:
         name:
           type: string
-          maxLength: 128
+          maxLength: 32
         value:
           type: string
-          maxLength: 128
+          maxLength: 32
     
     MetricRequest:
       type: object
@@ -560,7 +567,7 @@ components:
         name:
           type: string
           minLength: 1
-          maxLength: 128
+          maxLength: 32
 
     RunRequest:
       type: object
@@ -568,10 +575,10 @@ components:
       properties:
         name:
           type: string
-          maxLength: 128
+          maxLength: 32
         description:
           type: string
-          maxLength: 4096
+          maxLength: 512
         parameters:
           type: array
           items:
@@ -587,7 +594,7 @@ components:
       properties:
         failureReason:
           type: string
-          maxLength: 4096
+          maxLength: 512
 
     CreateMetricPlotsRequest:
       type: object
