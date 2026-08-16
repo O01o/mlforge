@@ -4,120 +4,22 @@
     import MLforgeSideBarItem from "$lib/components/common/MLforgeSideBarItem.svelte";
     import Title from "$lib/components/common/Title.svelte";
     import NamedCard from "$lib/components/common/NamedCard.svelte";
+    import type { Experiment } from "$lib/entity/api";
+    import ExperimentSidebarItem from "$lib/components/experiment/ExperimentSidebarItem.svelte";
     
-    const runs = Array.from({ length: 30 }, (_, i) => ({
+    const experiments = Array.from({ length: 30 }, (_, i) => ({
         id: i + 1,
-        name: `Run ${i + 1}`,
-        accuracy: (0.80 + i * 0.003).toFixed(3),
-        loss: (0.50 - i * 0.01).toFixed(3)
-    }));
+        name: `Experiment ${i + 1}`,
+        description: "Sample MLforge experiment",
+    } as Experiment));
 </script>
 
 <div class="d-flex vh-100 overflow-hidden">
 
     <MLforgeSideBar>
-        <MLforgeSideBarItem path="/experiment1" active>
-            Experiment 1
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment2">
-            Experiment 2
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment3">
-            Experiment 3
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment4">
-            Experiment 4
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment5">
-            Experiment 5
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment6">
-            Experiment 6
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment7">
-            Experiment 7
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment8">
-            Experiment 8
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment9">
-            Experiment 9
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment10">
-            Experiment 10
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
-        <MLforgeSideBarItem path="/experiment11">
-            Experiment 11
-        </MLforgeSideBarItem>
+        {#each experiments as experiment}
+            <ExperimentSidebarItem experiment={experiment} active={experiment.id === 1} />
+        {/each}
     </MLforgeSideBar>
 
     <main class="flex-grow-1 overflow-auto p-4">
