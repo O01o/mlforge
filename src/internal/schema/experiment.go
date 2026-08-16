@@ -13,4 +13,10 @@ type Experiment struct {
 	ExperimentID          uint64 `json:"id"`
 	ExperimentName        string `json:"name"`
 	ExperimentDescription string `json:"description"`
+	CreatedAt             string `json:"createdAt"`
+	UpdatedAt             string `json:"updatedAt"`
+}
+
+type ExperimentSummaries struct {
+	Experiments []*Experiment `json:"experimentSummaries"`
 }

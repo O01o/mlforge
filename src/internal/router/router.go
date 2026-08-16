@@ -24,7 +24,9 @@ func NewHTTPServer(addr string, db *sqlx.DB) *http.Server {
 
 	hhe := hh.NewExperimentHandler(rm.NewExperimentRepository(db))
 	r.HandleFunc("/api/experiments", hhe.CreateExperiment).Methods("POST")
-	r.HandleFunc("/api/experiments/{id:[0-9]+}", hhe.GetExperimentByID).Methods("GET")
+	r.HandleFunc("/api/experiments", hhe.GetExperimentList).Methods("GET")
+	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}", hhe.GetExperimentByID).Methods("GET")
+	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}", hhe.DeleteExperimentByID).Methods("DELETE")
 
 	return &http.Server{
 		Addr:    addr,

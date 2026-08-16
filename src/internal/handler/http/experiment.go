@@ -36,36 +36,9 @@ func (h *experimentHandler) CreateExperiment(w http.ResponseWriter, r *http.Requ
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	ressc, err := json.Marshal(&sc.ExperimentByID{
+	ressc, err := json.MarshalIndent(&sc.ExperimentByID{
 		ExperimentID: resr,
-	})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	w.Write(ressc)
-}
-
-func (h *experimentHandler) GetExperimentByID(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	req := path.Base(r.URL.Path)
-	id, err := strconv.ParseUint(req, 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	resr, err := h.repo.GetExperimentByID(id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	ressc, err := json.Marshal(&sc.Experiment{
-		ExperimentID:          resr.ExperimentID,
-		ExperimentName:        resr.ExperimentName,
-		ExperimentDescription: resr.ExperimentDescription,
-	})
+	}, "", "  ")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -88,15 +61,48 @@ func (h *experimentHandler) GetExperimentList(w http.ResponseWriter, r *http.Req
 			ExperimentID:          experiment.ExperimentID,
 			ExperimentName:        experiment.ExperimentName,
 			ExperimentDescription: experiment.ExperimentDescription,
+			CreatedAt:             experiment.CreatedAt,
+			UpdatedAt:             experiment.UpdatedAt,
 		}
 	}
-	resscj, err := json.Marshal(resscd)
+	resscj, err := json.MarshalIndent(&sc.ExperimentSummaries{
+		Experiments: resscd,
+	}, "", "  ")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(resscj)
+}
+
+func (h *experimentHandler) GetExperimentByID(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	req := path.Base(r.URL.Path)
+	id, err := strconv.ParseUint(req, 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	resr, err := h.repo.GetExperimentByID(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	ressc, err := json.MarshalIndent(&sc.Experiment{
+		ExperimentID:          resr.ExperimentID,
+		ExperimentName:        resr.ExperimentName,
+		ExperimentDescription: resr.ExperimentDescription,
+		CreatedAt:             resr.CreatedAt,
+		UpdatedAt:             resr.UpdatedAt,
+	}, "", "  ")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(ressc)
 }
 
 func (h *experimentHandler) DeleteExperimentByID(w http.ResponseWriter, r *http.Request) {
