@@ -43,7 +43,7 @@ func (h *experimentHandler) CreateExperiment(w http.ResponseWriter, r *http.Requ
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	w.Write(ressc)
 }
 

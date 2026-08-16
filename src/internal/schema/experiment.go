@@ -5,12 +5,12 @@ type ExperimentByID struct {
 }
 
 type ExperimentCreate struct {
-	ExperimentName        string `json:"experiment_name"`
-	ExperimentDescription string `json:"experiment_description"`
+	ExperimentName        string `json:"name"`
+	ExperimentDescription string `json:"description"`
 }
 
 type Experiment struct {
-	ExperimentID          uint64 `json:"experiment_id"`
-	ExperimentName        string `json:"experiment_name"`
-	ExperimentDescription string `json:"experiment_description"`
+	ExperimentID          uint64 `json:"id"`
+	ExperimentName        string `json:"name"`
+	ExperimentDescription string `json:"description"`
 }
