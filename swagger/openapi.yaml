@@ -30,7 +30,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthResponse"
 
-  /api:
+  /api/experiments:
     get:
       tags:
         - Experiments
@@ -73,7 +73,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /api/{experimentId}:
+  /api/experiments/{experimentId}:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
 
@@ -89,29 +89,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExperimentDetailsResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundResponse"
-        default:
-          $ref: "#/components/responses/ErrorResponse"
-    
-    post:
-      tags:
-        - Runs
-      operationId: createRun
-      summary: Create and start a run
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RunRequest"
-      responses:
-        "200":
-          description: Run created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RunIdResponse"
         "404":
           $ref: "#/components/responses/NotFoundResponse"
         default:
@@ -154,8 +131,35 @@ paths:
           $ref: "#/components/responses/NotFoundResponse"
         default:
           $ref: "#/components/responses/ErrorResponse"
+  
+  /api/experiments/{experimentId}/runs:
+    parameters:
+      - $ref: "#/components/parameters/ExperimentId"
 
-  /api/{experimentId}/{runId}:
+    post:
+      tags:
+        - Runs
+      operationId: createRun
+      summary: Create and start a run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunRequest"
+      responses:
+        "200":
+          description: Run created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunIdResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /api/experiments/{experimentId}/runs/{runId}:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
       - $ref: "#/components/parameters/RunId"
@@ -175,7 +179,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /api/{experimentId}/{runId}/finish:
+  /api/experiments/{experimentId}/runs/{runId}/finish:
     parameters:
       - $ref: "#/components/parameters/RunId"
 
@@ -198,7 +202,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /api/{experimentId}/{runId}/fail:
+  /api/experiments/{experimentId}/runs/{runId}/fail:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
       - $ref: "#/components/parameters/RunId"
@@ -228,7 +232,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /api/{experimentId}/{runId}/{metricId}:
+  /api/experiments/{experimentId}/runs/{runId}/metrics/{metricId}:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
       - $ref: "#/components/parameters/RunId"
@@ -253,7 +257,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
   
-  /api/{experimentId}/plots:
+  /api/experiments/{experimentId}/plots:
     parameters:
       - $ref: "#/components/parameters/ExperimentId"
 
