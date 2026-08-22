@@ -7,3 +7,8 @@ type Experiment struct {
 	CreatedAt             string `db:"created_at"`
 	UpdatedAt             string `db:"updated_at"`
 }
+
+type CreateExperiment struct {
+	ExperimentName        string `db:"name"`
+	ExperimentDescription string `db:"description"`
+}
