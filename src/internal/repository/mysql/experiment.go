@@ -1,6 +1,7 @@
 package rm
 
 import (
+	"context"
 	m "mlforge/internal/model"
 	qm "mlforge/internal/query/mysql"
 	ri "mlforge/internal/repository/interface"
@@ -9,15 +10,16 @@ import (
 )
 
 type experimentRepository struct {
-	db *sqlx.DB
+	ctx context.Context
+	tx  *sqlx.Tx
 }
 
-func NewExperimentRepository(db *sqlx.DB) ri.ExperimentRepository {
-	return &experimentRepository{db: db}
+func NewExperimentRepository(ctx context.Context, tx *sqlx.Tx) ri.ExperimentRepository {
+	return &experimentRepository{ctx: ctx, tx: tx}
 }
 
-func (r *experimentRepository) CreateExperiment(name string, description string) (uint64, error) {
-	res, err := r.db.Exec(qm.ExperimentInsertQuery, name, description)
+func (r *experimentRepository) CreateExperiment(experiment *m.CreateExperiment) (uint64, error) {
+	res, err := r.tx.ExecContext(r.ctx, qm.InsertExperimentQuery, experiment)
 	if err != nil {
 		return 0, err
 	}
@@ -30,7 +32,7 @@ func (r *experimentRepository) CreateExperiment(name string, description string)
 
 func (r *experimentRepository) GetExperimentByID(id uint64) (*m.Experiment, error) {
 	var experiment m.Experiment
-	err := r.db.Get(&experiment, qm.ExperimentGetByIDQuery, id)
+	err := r.tx.GetContext(r.ctx, &experiment, qm.GetExperimentByIDQuery, id)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +41,7 @@ func (r *experimentRepository) GetExperimentByID(id uint64) (*m.Experiment, erro
 
 func (r *experimentRepository) GetExperimentList() ([]*m.Experiment, error) {
 	var experiments []*m.Experiment
-	err := r.db.Select(&experiments, qm.ExperimentGetListQuery)
+	err := r.tx.SelectContext(r.ctx, &experiments, qm.GetExperimentsQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +49,7 @@ func (r *experimentRepository) GetExperimentList() ([]*m.Experiment, error) {
 }
 
 func (r *experimentRepository) DeleteExperimentByID(id uint64) error {
-	_, err := r.db.Exec(qm.ExperimentDeleteByIDQuery, id)
+	_, err := r.tx.ExecContext(r.ctx, qm.DeleteExperimentByIDQuery, id)
 	if err != nil {
 		return err
 	}
