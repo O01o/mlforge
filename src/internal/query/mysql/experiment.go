@@ -1,19 +1,20 @@
 package qm
 
-const ExperimentInsertQuery = `
-INSERT INTO experiments (name, description) VALUES (?, ?);
+const InsertExperimentQuery = `
+INSERT INTO experiments (name, description) 
+VALUES (:name, :description);
 `
 
-const ExperimentGetListQuery = `
+const GetExperimentsQuery = `
 SELECT * FROM experiments;
 `
 
-const ExperimentGetByIDQuery = `
+const GetExperimentByIDQuery = `
 SELECT * FROM experiments 
 WHERE experiment_id = ?;
 `
 
-const ExperimentDeleteByIDQuery = `
+const DeleteExperimentByIDQuery = `
 DELETE FROM experiments 
 WHERE experiment_id = ?;
 `
