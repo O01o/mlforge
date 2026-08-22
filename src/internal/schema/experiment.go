@@ -1,15 +1,15 @@
 package sc
 
-type ExperimentByID struct {
-	ExperimentID uint64 `json:"experiment_id"`
-}
-
-type ExperimentCreate struct {
+type CreateExperimentRequest struct {
 	ExperimentName        string `json:"name"`
 	ExperimentDescription string `json:"description"`
 }
 
-type Experiment struct {
+type CreateExperimentResponse struct {
+	ExperimentID uint64 `json:"id"`
+}
+
+type ExperimentSummary struct {
 	ExperimentID          uint64 `json:"id"`
 	ExperimentName        string `json:"name"`
 	ExperimentDescription string `json:"description"`
@@ -17,6 +17,15 @@ type Experiment struct {
 	UpdatedAt             string `json:"updatedAt"`
 }
 
-type ExperimentSummaries struct {
-	Experiments []*Experiment `json:"experimentSummaries"`
+type ExperimentDetails struct {
+	ExperimentSummary ExperimentSummary `json:"experimentSummary"`
+	RunDetails        []RunDetails      `json:"runDetails"`
+}
+
+type GetExperimentResponse struct {
+	ExperimentDetails *ExperimentDetails `json:"experimentDetails"`
+}
+
+type GetExperimentSummariesResponse struct {
+	ExperimentSummaries []*ExperimentSummary `json:"experimentSummaries"`
 }
