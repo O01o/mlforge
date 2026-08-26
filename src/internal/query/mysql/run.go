@@ -5,7 +5,7 @@ INSERT INTO runs (experiment_id, name, description, status)
 VALUES (:experiment_id, :name, :description, 0);
 `
 
-const GetRunsByExperimentIDQuery = `
+const GetRunsQuery = `
 SELECT * FROM runs 
 WHERE experiment_id = ?;
 `

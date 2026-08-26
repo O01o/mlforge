@@ -33,16 +33,12 @@ func (r *metricRepository) CreateMetrics(metrics []m.CreateMetric) ([]uint64, er
 	return metricIDs, nil
 }
 
-func (r *metricRepository) GetMetrics(
-	experimentID uint64,
-	runID uint64,
-) ([]m.Metric, error) {
+func (r *metricRepository) GetMetrics(runID uint64) ([]m.Metric, error) {
 	var metrics []m.Metric
 	err := r.tx.SelectContext(
 		r.ctx,
 		&metrics,
 		qm.GetMetricsQuery,
-		experimentID,
 		runID,
 	)
 	if err != nil {
@@ -51,13 +47,12 @@ func (r *metricRepository) GetMetrics(
 	return metrics, nil
 }
 
-func (r *metricRepository) GetMetricIDs(experimentID uint64, runID uint64) ([]uint64, error) {
+func (r *metricRepository) GetMetricIDs(runID uint64) ([]uint64, error) {
 	var metricIDs []uint64
 	err := r.tx.SelectContext(
 		r.ctx,
 		&metricIDs,
 		qm.GetMetricIDsQuery,
-		experimentID,
 		runID,
 	)
 	if err != nil {

@@ -29,16 +29,12 @@ func (r *parameterRepository) CreateParameters(parameters []m.CreateParameter) e
 	return nil
 }
 
-func (r *parameterRepository) GetParameters(
-	experimentID uint64,
-	runID uint64,
-) ([]m.Parameter, error) {
+func (r *parameterRepository) GetParameters(runID uint64) ([]m.Parameter, error) {
 	var parameters []m.Parameter
 	err := r.tx.SelectContext(
 		r.ctx,
 		&parameters,
 		qm.GetParametersQuery,
-		experimentID,
 		runID,
 	)
 	if err != nil {
@@ -47,13 +43,12 @@ func (r *parameterRepository) GetParameters(
 	return parameters, nil
 }
 
-func (r *parameterRepository) GetParameterIDs(experimentID uint64, runID uint64) ([]float64, error) {
-	var parameterIDs []float64
+func (r *parameterRepository) GetParameterIDs(runID uint64) ([]uint64, error) {
+	var parameterIDs []uint64
 	err := r.tx.SelectContext(
 		r.ctx,
 		&parameterIDs,
 		qm.GetParameterIDsQuery,
-		experimentID,
 		runID,
 	)
 	if err != nil {

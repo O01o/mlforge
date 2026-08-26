@@ -1,6 +1,9 @@
 package sc
 
+import "time"
+
 type CreateRunRequest struct {
+	ExperimentID   uint64                   `json:"experimentId"`
 	RunName        string                   `json:"name"`
 	RunDescription string                   `json:"description"`
 	Parameters     []CreateParameterRequest `json:"parameters"`
@@ -13,13 +16,13 @@ type CreateRunResponse struct {
 }
 
 type RunSummary struct {
-	RunID            uint64 `json:"id"`
-	RunName          string `json:"name"`
-	RunDescription   string `json:"description"`
-	RunFailureReason string `json:"failureReason"`
-	RunStatus        string `json:"status"`
-	StartedAt        string `json:"startedAt"`
-	EndedAt          string `json:"endedAt"`
+	RunID            uint64    `json:"id"`
+	RunName          string    `json:"name"`
+	RunDescription   string    `json:"description"`
+	RunFailureReason string    `json:"failureReason"`
+	RunStatus        uint16    `json:"status"`
+	StartedAt        time.Time `json:"startedAt"`
+	EndedAt          time.Time `json:"endedAt"`
 }
 
 type RunDetails struct {

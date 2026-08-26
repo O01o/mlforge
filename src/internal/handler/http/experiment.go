@@ -3,40 +3,40 @@ package hh
 import (
 	"encoding/json"
 	"mlforge/internal/core"
-	ri "mlforge/internal/repository/interface"
 	sc "mlforge/internal/schema"
+	sei "mlforge/internal/service/interface"
 	"net/http"
 	"path"
 	"strconv"
 )
 
 type experimentHandler struct {
-	Log  *core.Log
-	repo ri.ExperimentRepository
+	Log *core.Log
+	s   sei.ExperimentService
 }
 
-func NewExperimentHandler(repo ri.ExperimentRepository) *experimentHandler {
+func NewExperimentHandler(s sei.ExperimentService) *experimentHandler {
 	return &experimentHandler{
-		Log:  core.NewLog(),
-		repo: repo,
+		Log: core.NewLog(),
+		s:   s,
 	}
 }
 
 func (h *experimentHandler) CreateExperiment(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	var req *sc.ExperimentCreate
+	var req *sc.CreateExperimentRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	resr, err := h.repo.CreateExperiment(req.ExperimentName, req.ExperimentDescription)
+	resr, err := h.s.CreateExperiment(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	ressc, err := json.MarshalIndent(&sc.ExperimentByID{
+	ressc, err := json.MarshalIndent(&sc.CreateExperimentResponse{
 		ExperimentID: resr,
 	}, "", "  ")
 	if err != nil {
@@ -50,30 +50,18 @@ func (h *experimentHandler) CreateExperiment(w http.ResponseWriter, r *http.Requ
 func (h *experimentHandler) GetExperimentList(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	resr, err := h.repo.GetExperimentList()
+	resr, err := h.s.GetExperimentList()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	resscd := make([]*sc.Experiment, len(resr))
-	for i, experiment := range resr {
-		resscd[i] = &sc.Experiment{
-			ExperimentID:          experiment.ExperimentID,
-			ExperimentName:        experiment.ExperimentName,
-			ExperimentDescription: experiment.ExperimentDescription,
-			CreatedAt:             experiment.CreatedAt,
-			UpdatedAt:             experiment.UpdatedAt,
-		}
-	}
-	resscj, err := json.MarshalIndent(&sc.ExperimentSummaries{
-		Experiments: resscd,
-	}, "", "  ")
+	ressc, err := json.MarshalIndent(resr, "", "  ")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write(resscj)
+	w.Write(ressc)
 }
 
 func (h *experimentHandler) GetExperimentByID(w http.ResponseWriter, r *http.Request) {
@@ -85,18 +73,12 @@ func (h *experimentHandler) GetExperimentByID(w http.ResponseWriter, r *http.Req
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	resr, err := h.repo.GetExperimentByID(id)
+	resr, err := h.s.GetExperimentByID(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	ressc, err := json.MarshalIndent(&sc.Experiment{
-		ExperimentID:          resr.ExperimentID,
-		ExperimentName:        resr.ExperimentName,
-		ExperimentDescription: resr.ExperimentDescription,
-		CreatedAt:             resr.CreatedAt,
-		UpdatedAt:             resr.UpdatedAt,
-	}, "", "  ")
+	ressc, err := json.MarshalIndent(resr, "", "  ")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -114,7 +96,7 @@ func (h *experimentHandler) DeleteExperimentByID(w http.ResponseWriter, r *http.
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = h.repo.DeleteExperimentByID(id)
+	err = h.s.DeleteExperimentByID(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
