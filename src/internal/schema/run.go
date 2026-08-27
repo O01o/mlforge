@@ -3,7 +3,6 @@ package sc
 import "time"
 
 type CreateRunRequest struct {
-	ExperimentID   uint64            `json:"experimentId"`
 	RunName        string            `json:"name"`
 	RunDescription string            `json:"description"`
 	Parameters     map[string]string `json:"parameters"`

@@ -18,7 +18,7 @@ func NewRunService(db *sqlx.DB) sei.RunService {
 	return &runService{db: db}
 }
 
-func (s *runService) CreateRun(req *sc.CreateRunRequest) (uint64, []uint64, error) {
+func (s *runService) CreateRun(experimentId uint64, req *sc.CreateRunRequest) (uint64, []uint64, error) {
 	ctx := context.Background()
 	tx, err := s.db.Beginx()
 	if err != nil {
@@ -28,7 +28,7 @@ func (s *runService) CreateRun(req *sc.CreateRunRequest) (uint64, []uint64, erro
 
 	repoRun := rm.NewRunRepository(ctx, tx)
 	runID, err := repoRun.CreateRun(m.CreateRun{
-		ExperimentID:   req.ExperimentID,
+		ExperimentID:   experimentId,
 		RunName:        req.RunName,
 		RunDescription: req.RunDescription,
 		RunStatus:      0,

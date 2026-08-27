@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path"
 	"strconv"
+	"strings"
 )
 
 type runHandler struct {
@@ -25,13 +26,20 @@ func NewRunHandler(s sei.RunService) *runHandler {
 func (h *runHandler) CreateRun(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	var req *sc.CreateRunRequest
-	err := json.NewDecoder(r.Body).Decode(&req)
+	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	experimentID, err := strconv.ParseUint(pathParts[len(pathParts)-2], 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	resr, resm, err := h.s.CreateRun(req)
+
+	var req *sc.CreateRunRequest
+	err = json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	resr, resm, err := h.s.CreateRun(experimentID, req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
