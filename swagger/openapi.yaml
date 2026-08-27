@@ -452,17 +452,12 @@ components:
           items:
             $ref: "#/components/schemas/Metric"
 
-    RunMetricPlots:
+    MetricPlots:
       type: object
       required:
-        - runId
         - metricId
         - plots
       properties:
-        runId:
-          type: integer
-          format: int64
-          minimum: 1
         metricId:
           type: integer
           format: int64
@@ -474,6 +469,22 @@ components:
           additionalProperties:
             type: number
             format: double
+    
+    RunMetricPlots:
+      type: object
+      required:
+        - runId
+        - metricId
+        - plots
+      properties:
+        runId:
+          type: integer
+          format: int64
+          minimum: 1
+        metricPlots:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricPlots"
     
     ExperimentSummary:
       type: object

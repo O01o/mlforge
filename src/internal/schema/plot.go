@@ -9,10 +9,14 @@ type PlotRange struct {
 	EndStep   uint64 `json:"endStep"`
 }
 
-type RunMetricPlots struct {
-	RunID    uint64             `json:"runId"`
+type MetricPlots struct {
 	MetricID uint64             `json:"metricId"`
 	Plots    map[string]float64 `json:"plots"`
+}
+
+type RunMetricPlots struct {
+	RunID       uint64        `json:"runId"`
+	MetricPlots []MetricPlots `json:"metricPlots"`
 }
 
 type GetPlotsRequest struct {

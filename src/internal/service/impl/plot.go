@@ -69,6 +69,7 @@ func (s *plotService) GetPlots(req *sc.GetPlotsRequest) (*sc.GetPlotsResponse, e
 		if err != nil {
 			return nil, err
 		}
+		var metricPlots []sc.MetricPlots
 		for _, metricID := range metricIDs {
 			plots, err := repoPlot.GetPlots(
 				metricID,
@@ -82,12 +83,20 @@ func (s *plotService) GetPlots(req *sc.GetPlotsRequest) (*sc.GetPlotsResponse, e
 			for _, plot := range plots {
 				plotMap[strconv.FormatUint(plot.PlotStep, 10)] = plot.PlotValue
 			}
-			runMetricPlots = append(runMetricPlots, sc.RunMetricPlots{
-				RunID:    runID,
-				MetricID: metricID,
-				Plots:    plotMap,
-			})
+			metricPlots = append(
+				metricPlots, sc.MetricPlots{
+					MetricID: metricID,
+					Plots:    plotMap,
+				},
+			)
 		}
+		runMetricPlots = append(
+			runMetricPlots,
+			sc.RunMetricPlots{
+				RunID:       runID,
+				MetricPlots: metricPlots,
+			},
+		)
 	}
 
 	err = tx.Commit()
