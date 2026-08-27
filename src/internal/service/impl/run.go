@@ -59,7 +59,12 @@ func (s *runService) CreateRun(req *sc.CreateRunRequest) (uint64, []uint64, erro
 		})
 	}
 	repoMetric := rm.NewMetricRepository(ctx, tx)
-	metricIDs, err := repoMetric.CreateMetrics(metrics)
+	err = repoMetric.CreateMetrics(metrics)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	metricIDs, err := repoMetric.GetMetricIDs(runID)
 	if err != nil {
 		return 0, nil, err
 	}

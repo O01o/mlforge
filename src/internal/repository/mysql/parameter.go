@@ -18,13 +18,15 @@ func NewParameterRepository(ctx context.Context, tx *sqlx.Tx) *parameterReposito
 }
 
 func (r *parameterRepository) CreateParameters(parameters []m.CreateParameter) error {
-	_, err := r.tx.NamedExecContext(
-		r.ctx,
-		qm.InsertParametersQuery,
-		parameters,
-	)
-	if err != nil {
-		return err
+	for _, param := range parameters {
+		_, err := r.tx.NamedExecContext(
+			r.ctx,
+			qm.InsertParametersQuery,
+			param,
+		)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

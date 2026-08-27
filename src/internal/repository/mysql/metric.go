@@ -17,20 +17,18 @@ func NewMetricRepository(ctx context.Context, tx *sqlx.Tx) *metricRepository {
 	return &metricRepository{ctx: ctx, tx: tx}
 }
 
-func (r *metricRepository) CreateMetrics(metrics []m.CreateMetric) ([]uint64, error) {
-	_, err := r.tx.NamedExecContext(
-		r.ctx,
-		qm.InsertMetricsQuery,
-		metrics,
-	)
-	if err != nil {
-		return nil, err
-	}
-	var metricIDs []uint64
+func (r *metricRepository) CreateMetrics(metrics []m.CreateMetric) error {
 	for _, metric := range metrics {
-		metricIDs = append(metricIDs, metric.RunID)
+		_, err := r.tx.NamedExecContext(
+			r.ctx,
+			qm.InsertMetricsQuery,
+			metric,
+		)
+		if err != nil {
+			return err
+		}
 	}
-	return metricIDs, nil
+	return nil
 }
 
 func (r *metricRepository) GetMetrics(runID uint64) ([]m.Metric, error) {
