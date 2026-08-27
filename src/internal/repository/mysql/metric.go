@@ -18,7 +18,7 @@ func NewMetricRepository(ctx context.Context, tx *sqlx.Tx) *metricRepository {
 }
 
 func (r *metricRepository) CreateMetrics(metrics []m.CreateMetric) ([]uint64, error) {
-	_, err := r.tx.ExecContext(
+	_, err := r.tx.NamedExecContext(
 		r.ctx,
 		qm.InsertMetricsQuery,
 		metrics,
