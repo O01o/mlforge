@@ -19,7 +19,7 @@ func NewExperimentRepository(ctx context.Context, tx *sqlx.Tx) ri.ExperimentRepo
 }
 
 func (r *experimentRepository) CreateExperiment(experiment *m.CreateExperiment) (uint64, error) {
-	res, err := r.tx.ExecContext(r.ctx, qm.InsertExperimentQuery, experiment)
+	res, err := r.tx.NamedExecContext(r.ctx, qm.InsertExperimentQuery, experiment)
 	if err != nil {
 		return 0, err
 	}
