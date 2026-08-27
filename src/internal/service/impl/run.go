@@ -38,11 +38,11 @@ func (s *runService) CreateRun(req *sc.CreateRunRequest) (uint64, []uint64, erro
 	}
 
 	var parameters []m.CreateParameter
-	for _, param := range req.Parameters {
+	for name, value := range req.Parameters {
 		parameters = append(parameters, m.CreateParameter{
 			RunID:          runID,
-			ParameterName:  param.ParameterName,
-			ParameterValue: param.ParameterValue,
+			ParameterName:  name,
+			ParameterValue: value,
 		})
 	}
 	repoParameter := rm.NewParameterRepository(ctx, tx)
@@ -55,7 +55,7 @@ func (s *runService) CreateRun(req *sc.CreateRunRequest) (uint64, []uint64, erro
 	for _, metric := range req.Metrics {
 		metrics = append(metrics, m.CreateMetric{
 			RunID:      runID,
-			MetricName: metric.MetricName,
+			MetricName: metric,
 		})
 	}
 	repoMetric := rm.NewMetricRepository(ctx, tx)

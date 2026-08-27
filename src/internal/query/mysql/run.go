@@ -13,16 +13,16 @@ WHERE experiment_id = ?;
 const FinishRunByIDQuery = `
 UPDATE runs 
 SET status = 1 
-WHERE experiment_id = ? AND run_id = ?;
+WHERE run_id = ?;
 `
 
 const FailRunByIDQuery = `
 UPDATE runs 
 SET status = 2 
-WHERE experiment_id = ? AND run_id = ?;
+WHERE run_id = ?;
 `
 
 const DeleteRunByIDQuery = `
 DELETE FROM runs 
-WHERE experiment_id = ? AND run_id = ?;
+WHERE run_id = ?;
 `

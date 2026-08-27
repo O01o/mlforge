@@ -18,7 +18,7 @@ func NewRunRepository(ctx context.Context, tx *sqlx.Tx) *runRepository {
 }
 
 func (r *runRepository) CreateRun(run m.CreateRun) (uint64, error) {
-	res, err := r.tx.ExecContext(r.ctx, qm.InsertRunQuery, run)
+	res, err := r.tx.NamedExecContext(r.ctx, qm.InsertRunQuery, run)
 	if err != nil {
 		return 0, err
 	}
