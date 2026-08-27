@@ -3,6 +3,6 @@ package sei
 import sc "mlforge/internal/schema"
 
 type PlotService interface {
-	CreatePlots(req *sc.CreatePlotsRequest) (uint64, error)
+	CreatePlots(metricId uint64, req *sc.CreatePlotsRequest) error
 	GetPlots(req *sc.GetPlotsRequest) (*sc.GetPlotsResponse, error)
 }

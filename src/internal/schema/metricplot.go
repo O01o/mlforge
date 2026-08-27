@@ -1,23 +1,18 @@
 package sc
 
-type Plot struct {
-	Step  int     `json:"step"`
-	Value float64 `json:"value"`
-}
-
 type CreatePlotsRequest struct {
-	Plots []Plot `json:"plots"`
+	Plots map[string]float64 `json:"plots"`
 }
 
 type PlotRange struct {
-	StartStep int `json:"startStep"`
-	EndStep   int `json:"endStep"`
+	StartStep uint64 `json:"startStep"`
+	EndStep   uint64 `json:"endStep"`
 }
 
 type RunMetricPlots struct {
-	RunID    uint64 `json:"runId"`
-	MetricID uint64 `json:"metricId"`
-	Plots    []Plot `json:"plots"`
+	RunID    uint64             `json:"runId"`
+	MetricID uint64             `json:"metricId"`
+	Plots    map[string]float64 `json:"plots"`
 }
 
 type GetPlotsRequest struct {

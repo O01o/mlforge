@@ -1,8 +1,12 @@
 package sem
 
 import (
+	"context"
+	m "mlforge/internal/model"
+	rm "mlforge/internal/repository/mysql"
 	sc "mlforge/internal/schema"
 	sei "mlforge/internal/service/interface"
+	"strconv"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -15,14 +19,80 @@ func NewPlotService(db *sqlx.DB) sei.PlotService {
 	return &plotService{db: db}
 }
 
-func (s *plotService) CreatePlots(req *sc.CreatePlotsRequest) (uint64, error) {
-	// Implement the logic to create plots in the database
-	// This is a placeholder implementation, replace with actual logic
-	return 0, nil
+func (s *plotService) CreatePlots(metricId uint64, req *sc.CreatePlotsRequest) error {
+	var plots []m.Plot
+	for stepStr, value := range req.Plots {
+		step, err := strconv.ParseUint(stepStr, 10, 64)
+		if err != nil {
+			return err
+		}
+		plots = append(plots, m.Plot{
+			MetricID:  metricId,
+			PlotStep:  step,
+			PlotValue: value,
+		})
+	}
+
+	ctx := context.Background()
+	tx, err := s.db.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	repoPlot := rm.NewPlotRepository(ctx, tx)
+	err = repoPlot.CreatePlots(plots)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *plotService) GetPlots(req *sc.GetPlotsRequest) (*sc.GetPlotsResponse, error) {
-	// Implement the logic to retrieve plots from the database
-	// This is a placeholder implementation, replace with actual logic
-	return &sc.GetPlotsResponse{}, nil
+	ctx := context.Background()
+	tx, err := s.db.Beginx()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	repoMetric := rm.NewMetricRepository(ctx, tx)
+	repoPlot := rm.NewPlotRepository(ctx, tx)
+	var runMetricPlots []sc.RunMetricPlots
+	for _, runID := range req.RunIDs {
+		metricIDs, err := repoMetric.GetMetricIDs(runID)
+		if err != nil {
+			return nil, err
+		}
+		for _, metricID := range metricIDs {
+			plots, err := repoPlot.GetPlots(
+				metricID,
+				req.PlotRange.StartStep,
+				req.PlotRange.EndStep,
+			)
+			if err != nil {
+				return nil, err
+			}
+			plotMap := make(map[string]float64)
+			for _, plot := range plots {
+				plotMap[strconv.FormatUint(plot.PlotStep, 10)] = plot.PlotValue
+			}
+			runMetricPlots = append(runMetricPlots, sc.RunMetricPlots{
+				RunID:    runID,
+				MetricID: metricID,
+				Plots:    plotMap,
+			})
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+	return &sc.GetPlotsResponse{RunMetricPlots: runMetricPlots}, nil
 }

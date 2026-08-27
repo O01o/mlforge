@@ -255,7 +255,7 @@ paths:
   
   /api/plots:
 
-    get:
+    post:
       tags:
         - MetricPlots
       operationId: getMetricPlots

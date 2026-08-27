@@ -6,6 +6,8 @@ import (
 	sc "mlforge/internal/schema"
 	sei "mlforge/internal/service/interface"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 type plotHandler struct {
@@ -23,13 +25,36 @@ func NewPlotHandler(s sei.PlotService) *plotHandler {
 func (h *plotHandler) CreatePlots(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
+	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	id, err := strconv.ParseUint(pathParts[len(pathParts)-2], 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	var req *sc.CreatePlotsRequest
+	err = json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = h.s.CreatePlots(id, req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *plotHandler) GetPlots(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	var req *sc.GetPlotsRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	resr, err := h.s.CreatePlots(req)
+	resr, err := h.s.GetPlots(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -41,13 +66,4 @@ func (h *plotHandler) CreatePlots(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(ressc)
-}
-
-func (h *plotHandler) GetPlots(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	// Implement the logic to get plots here
-	// This is a placeholder implementation
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"plots": []}`))
 }

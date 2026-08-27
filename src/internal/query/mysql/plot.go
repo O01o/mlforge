@@ -6,6 +6,6 @@ VALUES (:metric_id, :step, :value);
 `
 
 const GetPlotsByRangeOfStepQuery = `
-SELECT plot_id FROM plots 
+SELECT * FROM plots
 WHERE metric_id = ? AND step BETWEEN ? AND ?;
 `

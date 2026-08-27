@@ -36,7 +36,7 @@ func NewHTTPServer(addr string, db *sqlx.DB) *http.Server {
 
 	hhp := hh.NewPlotHandler(sem.NewPlotService(db))
 	r.HandleFunc("/api/metrics/{metricId:[0-9]+}/plots", hhp.CreatePlots).Methods("POST")
-	r.HandleFunc("/api/plots", hhp.GetPlots).Methods("GET")
+	r.HandleFunc("/api/plots", hhp.GetPlots).Methods("POST")
 
 	return &http.Server{
 		Addr:    addr,
