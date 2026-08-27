@@ -59,8 +59,8 @@ func (h *runHandler) CreateRun(w http.ResponseWriter, r *http.Request) {
 func (h *runHandler) FinishRunByID(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	req := path.Base(r.URL.Path)
-	id, err := strconv.ParseUint(req, 10, 64)
+	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	id, err := strconv.ParseUint(pathParts[len(pathParts)-2], 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -76,8 +76,8 @@ func (h *runHandler) FinishRunByID(w http.ResponseWriter, r *http.Request) {
 func (h *runHandler) FailRunByID(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	req := path.Base(r.URL.Path)
-	id, err := strconv.ParseUint(req, 10, 64)
+	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	id, err := strconv.ParseUint(pathParts[len(pathParts)-2], 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
