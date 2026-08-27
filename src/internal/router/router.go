@@ -30,8 +30,8 @@ func NewHTTPServer(addr string, db *sqlx.DB) *http.Server {
 
 	hhr := hh.NewRunHandler(sem.NewRunService(db))
 	r.HandleFunc("/api/runs", hhr.CreateRun).Methods("POST")
-	r.HandleFunc("/api/runs/{runId:[0-9]+}/finish", hhr.FinishRunByID).Methods("POST")
-	r.HandleFunc("/api/runs/{runId:[0-9]+}/fail", hhr.FailRunByID).Methods("POST")
+	r.HandleFunc("/api/runs/{runId:[0-9]+}/finish", hhr.FinishRunByID).Methods("PUT")
+	r.HandleFunc("/api/runs/{runId:[0-9]+}/fail", hhr.FailRunByID).Methods("PUT")
 	r.HandleFunc("/api/runs/{runId:[0-9]+}", hhr.DeleteRunByID).Methods("DELETE")
 
 	hhp := hh.NewPlotHandler(sem.NewPlotService(db))
