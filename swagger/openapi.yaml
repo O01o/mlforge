@@ -369,16 +369,6 @@ components:
           type: string
           maxLength: 32
     
-    MetricPlot:
-      type: array
-      prefixItems:
-        - type: integer
-          format: int64
-        - type: number
-          format: double
-      minItems: 2
-      maxItems: 2
-    
     MetricPlotRange:
       type: object
       additionalProperties: false
@@ -484,9 +474,12 @@ components:
           format: int64
           minimum: 1
         plots:
-          type: array
-          items:
-            $ref: "#/components/schemas/MetricPlot"
+          type: object
+          propertyNames:
+            pattern: '^[1-9][0-9]*$'
+          additionalProperties:
+            type: number
+            format: double
     
     ExperimentSummary:
       type: object
@@ -570,30 +563,6 @@ components:
       properties:
         experimentDetails:
           $ref: "#/components/schemas/ExperimentDetails"
-    
-    ParameterRequest:
-      type: object
-      additionalProperties: false
-      required:
-        - name
-        - value
-      properties:
-        name:
-          type: string
-          maxLength: 32
-        value:
-          type: string
-          maxLength: 32
-    
-    MetricRequest:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 32
 
     RunRequest:
       type: object
@@ -606,13 +575,13 @@ components:
           type: string
           maxLength: 512
         parameters:
-          type: array
-          items:
-            $ref: "#/components/schemas/ParameterRequest"
+          type: object
+          additionalProperties:
+            type: string
         metrics:
           type: array
           items:
-            $ref: "#/components/schemas/MetricRequest"
+            type: string
     
     RunIdResponse:
       type: object
@@ -645,9 +614,12 @@ components:
         - plots
       properties:
         plots:
-          type: array
-          items:
-            $ref: "#/components/schemas/MetricPlot"
+          type: object
+          propertyNames:
+            pattern: '^[1-9][0-9]*$'
+          additionalProperties:
+            type: number
+            format: double
 
     GetMetricPlotsRequest:
       type: object
