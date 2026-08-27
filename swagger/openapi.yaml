@@ -159,9 +159,8 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /api/experiments/{experimentId}/runs/{runId}:
+  /api/runs/{runId}:
     parameters:
-      - $ref: "#/components/parameters/ExperimentId"
       - $ref: "#/components/parameters/RunId"
     
     delete:
@@ -179,7 +178,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /api/experiments/{experimentId}/runs/{runId}/finish:
+  /api/runs/{runId}/finish:
     parameters:
       - $ref: "#/components/parameters/RunId"
 
@@ -202,9 +201,8 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /api/experiments/{experimentId}/runs/{runId}/fail:
+  /api/runs/{runId}/fail:
     parameters:
-      - $ref: "#/components/parameters/ExperimentId"
       - $ref: "#/components/parameters/RunId"
 
     put:
@@ -232,16 +230,14 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
 
-  /api/experiments/{experimentId}/runs/{runId}/metrics/{metricId}:
+  /api/metrics/{metricId}/plots:
     parameters:
-      - $ref: "#/components/parameters/ExperimentId"
-      - $ref: "#/components/parameters/RunId"
       - $ref: "#/components/parameters/MetricId"
 
     post:
       tags:
         - MetricPlots
-      operationId: postMetric
+      operationId: postMetricPlots
       summary: Post metric plots
       requestBody:
         required: false
@@ -257,9 +253,7 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
   
-  /api/experiments/{experimentId}/plots:
-    parameters:
-      - $ref: "#/components/parameters/ExperimentId"
+  /api/plots:
 
     get:
       tags:

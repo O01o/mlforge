@@ -29,14 +29,14 @@ func NewHTTPServer(addr string, db *sqlx.DB) *http.Server {
 	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}", hhe.DeleteExperimentByID).Methods("DELETE")
 
 	hhr := hh.NewRunHandler(sem.NewRunService(db))
-	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}/runs", hhr.CreateRun).Methods("POST")
-	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}/runs/{runId:[0-9]+}/finish", hhr.FinishRunByID).Methods("POST")
-	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}/runs/{runId:[0-9]+}/fail", hhr.FailRunByID).Methods("POST")
-	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}/runs/{runId:[0-9]+}", hhr.DeleteRunByID).Methods("DELETE")
+	r.HandleFunc("/api/runs", hhr.CreateRun).Methods("POST")
+	r.HandleFunc("/api/runs/{runId:[0-9]+}/finish", hhr.FinishRunByID).Methods("POST")
+	r.HandleFunc("/api/runs/{runId:[0-9]+}/fail", hhr.FailRunByID).Methods("POST")
+	r.HandleFunc("/api/runs/{runId:[0-9]+}", hhr.DeleteRunByID).Methods("DELETE")
 
 	hhp := hh.NewPlotHandler(sem.NewPlotService(db))
-	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}/runs/{runId:[0-9]+}/metrics/{metricId:[0-9]+}/plots", hhp.CreatePlots).Methods("POST")
-	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}/plots", hhp.GetPlots).Methods("GET")
+	r.HandleFunc("/api/metrics/{metricId:[0-9]+}/plots", hhp.CreatePlots).Methods("POST")
+	r.HandleFunc("/api/plots", hhp.GetPlots).Methods("GET")
 
 	return &http.Server{
 		Addr:    addr,
