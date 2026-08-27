@@ -14,3 +14,9 @@ type CreateExperiment struct {
 	ExperimentName        string `db:"name"`
 	ExperimentDescription string `db:"description"`
 }
+
+type UpdateExperiment struct {
+	ExperimentID          uint64 `db:"id"`
+	ExperimentName        string `db:"name"`
+	ExperimentDescription string `db:"description"`
+}

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path"
 	"strconv"
+	"strings"
 )
 
 type experimentHandler struct {
@@ -85,6 +86,29 @@ func (h *experimentHandler) GetExperimentByID(w http.ResponseWriter, r *http.Req
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(ressc)
+}
+
+func (h *experimentHandler) UpdateExperimentByID(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	id, err := strconv.ParseUint(pathParts[len(pathParts)-1], 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	var req *sc.CreateExperimentRequest
+	err = json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = h.s.UpdateExperimentByID(id, req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *experimentHandler) DeleteExperimentByID(w http.ResponseWriter, r *http.Request) {

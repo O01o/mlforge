@@ -149,6 +149,26 @@ func (s *experimentService) GetExperimentList() ([]*sc.GetExperimentSummariesRes
 	}}, nil
 }
 
+func (s *experimentService) UpdateExperimentByID(id uint64, req *sc.CreateExperimentRequest) error {
+	ctx := context.Background()
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	repo := rm.NewExperimentRepository(ctx, tx)
+	err = repo.UpdateExperimentByID(id, &m.UpdateExperiment{
+		ExperimentID:          id,
+		ExperimentName:        req.ExperimentName,
+		ExperimentDescription: req.ExperimentDescription,
+	})
+	if err != nil {
+		return err
+	}
+	tx.Commit()
+	return nil
+}
+
 func (s *experimentService) DeleteExperimentByID(id uint64) error {
 	ctx := context.Background()
 	tx, err := s.db.BeginTxx(ctx, nil)

@@ -26,6 +26,7 @@ func NewHTTPServer(addr string, db *sqlx.DB) *http.Server {
 	r.HandleFunc("/api/experiments", hhe.CreateExperiment).Methods("POST")
 	r.HandleFunc("/api/experiments", hhe.GetExperimentList).Methods("GET")
 	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}", hhe.GetExperimentByID).Methods("GET")
+	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}", hhe.UpdateExperimentByID).Methods("PATCH")
 	r.HandleFunc("/api/experiments/{experimentId:[0-9]+}", hhe.DeleteExperimentByID).Methods("DELETE")
 
 	hhr := hh.NewRunHandler(sem.NewRunService(db))

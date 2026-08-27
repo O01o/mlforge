@@ -106,12 +106,8 @@ paths:
             schema:
               $ref: "#/components/schemas/ExperimentRequest"
       responses:
-        "200":
+        "204":
           description: Experiment updated
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ExperimentSummary"
         "404":
           $ref: "#/components/responses/NotFoundResponse"
         default:

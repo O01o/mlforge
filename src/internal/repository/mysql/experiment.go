@@ -48,6 +48,18 @@ func (r *experimentRepository) GetExperimentList() ([]*m.Experiment, error) {
 	return experiments, nil
 }
 
+func (r *experimentRepository) UpdateExperimentByID(id uint64, experiment *m.UpdateExperiment) error {
+	_, err := r.tx.NamedExecContext(
+		r.ctx,
+		qm.UpdateExperimentByIDQuery,
+		experiment,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *experimentRepository) DeleteExperimentByID(id uint64) error {
 	_, err := r.tx.ExecContext(r.ctx, qm.DeleteExperimentByIDQuery, id)
 	if err != nil {
