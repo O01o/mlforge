@@ -17,9 +17,4 @@ export default defineConfig({
 			adapter: adapter()
 		})
 	],
-	resolve: {
-    	alias: {
-      		'uplot': 'uplot/dist/uPlot.iife.js'
-    	}
-  	}
 });

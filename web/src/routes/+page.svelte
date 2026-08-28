@@ -102,7 +102,7 @@
                         rows="3"
                     ></textarea>
                 </NamedCard>
-
+                <div bind:this={chartContainer}></div>
             </div>
         </div>
     </main>
