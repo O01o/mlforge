@@ -4,14 +4,14 @@
     import MLforgeSideBarItem from "$lib/components/common/MLforgeSideBarItem.svelte";
     import Title from "$lib/components/common/Title.svelte";
     import NamedCard from "$lib/components/common/NamedCard.svelte";
-    import type { Experiment } from "$lib/entity/api";
+    import type { ExperimentSummary } from "$lib/types/base/experiment";
     import ExperimentSidebarItem from "$lib/components/experiment/ExperimentSidebarItem.svelte";
     
     const experiments = Array.from({ length: 30 }, (_, i) => ({
         id: i + 1,
-        name: `Experiment ${i + 1}`,
+        name: `ExperimentSummary ${i + 1}`,
         description: "Sample MLforge experiment",
-    } as Experiment));
+    } as ExperimentSummary));
 </script>
 
 <div class="d-flex vh-100 overflow-hidden">
@@ -26,26 +26,26 @@
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <Title 
-                    title="Create New Experiment" 
+                    title="Create New ExperimentSummary" 
                     description="Create a new experiment to start tracking your training runs."
                 />
                 <button class="btn btn-primary">Create</button>
             </div>
             <div class="row g-3">
                 <NamedCard
-                    title="Experiment Name"
-                    description="Experiment Name"
+                    title="ExperimentSummary Name"
+                    description="ExperimentSummary Name"
                 >
                     <input 
                         type="text" 
                         class="form-control" 
                         id="experimentFormControlInput" 
-                        placeholder="Experiment 1"
+                        placeholder="ExperimentSummary 1"
                     />
                 </NamedCard>
                 <NamedCard
-                    title="Experiment Description"
-                    description="Experiment Description"
+                    title="ExperimentSummary Description"
+                    description="ExperimentSummary Description"
                 >
                     <textarea 
                         class="form-control" 

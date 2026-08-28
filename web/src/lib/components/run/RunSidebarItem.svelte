@@ -1,15 +1,15 @@
 <script lang="ts">
-    import type { Run } from "$lib/entity/api";
+    import type { RunDetails } from "$lib/types/base/run";
     import MLforgeSideBarItem from "../common/MLforgeSideBarItem.svelte";
     let {
         run,
         active = false,
     }: { 
-        run: Run;
+        run: RunDetails;
         active?: boolean;
     } = $props();
 </script>
 
-<MLforgeSideBarItem path={`/${run.id}`} active={active}>
-    (ID: {run.id}) {run.name}
+<MLforgeSideBarItem path={`/${run.runSummary.id}`} active={active}>
+    (ID: {run.runSummary.id}) {run.runSummary.name}
 </MLforgeSideBarItem>

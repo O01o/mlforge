@@ -3,16 +3,14 @@
     import MLforgeSideBarItem from "$lib/components/common/MLforgeSideBarItem.svelte";
     import RunSidebarItem from "$lib/components/run/RunSidebarItem.svelte";
     import RunSummaryCard from "$lib/components/run/RunSummaryCard.svelte";
-    import { type Run } from "$lib/entity/api";
+    import type { RunSummary, RunDetails } from "$lib/types/base/run";
 
     const runs = Array.from({ length: 8 }, (_, i) => ({
-        id: i + 1,
-        name: `Run ${i + 1}`,
-        description: "Sample MLforge training run",
-        failureReason: "",
-        status: 1,
-        startedAt: new Date(),
-        endedAt: new Date(),
+        runSummary: {
+            id: i + 1,
+            name: `RunSummary ${i + 1}`,
+            description: "Sample MLforge training run",
+        } as RunSummary,
         parameters: [
             {
                 id: 1,
@@ -35,7 +33,7 @@
                 name: "Loss"
             }
         ]
-    } as Run));
+    } as RunDetails));
 </script>
 
 <div class="d-flex vh-100 overflow-hidden">
@@ -70,7 +68,7 @@
         </div>
         <hr />
         {#each runs as run}
-            <RunSidebarItem run={run} active={run.id === 1} />
+            <RunSidebarItem run={run} active={run.runSummary.id === 1} />
         {/each}
     </MLforgeSideBar>
 
@@ -86,7 +84,7 @@
                 </div>
 
                 <button class="btn btn-primary">
-                    New Run
+                    New RunDetails
                 </button>
             </div>
 

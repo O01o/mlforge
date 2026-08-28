@@ -1,15 +1,15 @@
 <script lang="ts">
-    import type { Experiment } from "$lib/entity/api";
+    import type { ExperimentDetails } from "$lib/types/base/experiment";
     import MLforgeSideBarItem from "../common/MLforgeSideBarItem.svelte";
     let {
         experiment,
         active = false,
     }: { 
-        experiment: Experiment;
+        experiment: ExperimentDetails;
         active?: boolean;
     } = $props();
 </script>
 
-<MLforgeSideBarItem path={`/${experiment.id}`} active={active}>
-    (ID: {experiment.id}) {experiment.name}
+<MLforgeSideBarItem path={`/${experiment.experimentSummary.id}`} active={active}>
+    (ID: {experiment.experimentSummary.id}) {experiment.experimentSummary.name}
 </MLforgeSideBarItem>
