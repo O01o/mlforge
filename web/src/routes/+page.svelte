@@ -9,7 +9,7 @@
     import NamedCard from "$lib/components/common/NamedCard.svelte";
     import type { ExperimentSummary } from "$lib/types/base/experiment";
     import ExperimentSidebarItem from "$lib/components/experiment/ExperimentSidebarItem.svelte";
-    import type { UPlotProps } from "$lib/types/uplot/plot";
+    import type { UPlotProps } from "$lib/types/uplot/uplot";
     import type { AlignedData } from "uplot";
     
     const experiments = Array.from({ length: 30 }, (_, i) => ({
@@ -26,29 +26,7 @@
             [0, 1, 2, 3, 4, 5],
             [0, 1, 4, 9, 16, 25]
         ],
-        series: [
-            {},
-            {
-                label: "y = x^2",
-                stroke: "blue",
-                width: 2
-            }
-        ],
-        title: "Sample Chart",
-        width: 800,
-        height: 400
-    });
-
-    onMount(() => {
-        const data: AlignedData = [
-            [0, 1, 2, 3, 4, 5],
-            [0, 1, 4, 9, 16, 25]
-        ];
-
-        const options = {
-            title: "Sample Chart",
-            width: 800,
-            height: 400,
+        options: {
             series: [
                 {},
                 {
@@ -56,10 +34,15 @@
                     stroke: "blue",
                     width: 2
                 }
-            ]
-        };
+            ],
+            title: "Sample Chart",
+            width: 800,
+            height: 400
+        }
+    });
 
-        new uPlot(options, data, chartContainer);
+    onMount(() => {
+        new uPlot(props.options, props.data, chartContainer);
     });
 </script>
 
