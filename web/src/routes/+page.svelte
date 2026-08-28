@@ -1,17 +1,66 @@
 <script lang="ts">
     import Card from "$lib/components/common/Card.svelte";
+    import uPlot from "uplot";
+    import "uplot/dist/uPlot.min.css";
+    import { onMount } from "svelte";
     import MLforgeSideBar from "$lib/components/common/MLforgeSideBar.svelte";
     import MLforgeSideBarItem from "$lib/components/common/MLforgeSideBarItem.svelte";
     import Title from "$lib/components/common/Title.svelte";
     import NamedCard from "$lib/components/common/NamedCard.svelte";
     import type { ExperimentSummary } from "$lib/types/base/experiment";
     import ExperimentSidebarItem from "$lib/components/experiment/ExperimentSidebarItem.svelte";
+    import type { UPlotProps } from "$lib/types/uplot/plot";
+    import type { AlignedData } from "uplot";
     
     const experiments = Array.from({ length: 30 }, (_, i) => ({
         id: i + 1,
         name: `ExperimentSummary ${i + 1}`,
         description: "Sample MLforge experiment",
     } as ExperimentSummary));
+
+    
+    let chartContainer: HTMLDivElement | undefined = $state();
+
+    let props: UPlotProps = $state({
+        data: [
+            [0, 1, 2, 3, 4, 5],
+            [0, 1, 4, 9, 16, 25]
+        ],
+        series: [
+            {},
+            {
+                label: "y = x^2",
+                stroke: "blue",
+                width: 2
+            }
+        ],
+        title: "Sample Chart",
+        width: 800,
+        height: 400
+    });
+
+    onMount(() => {
+        const data: AlignedData = [
+            [0, 1, 2, 3, 4, 5],
+            [0, 1, 4, 9, 16, 25]
+        ];
+
+        const options = {
+            title: "Sample Chart",
+            width: 800,
+            height: 400,
+            series: [
+                {},
+                {
+                    label: "y = x^2",
+                    stroke: "blue",
+                    width: 2
+                }
+            ]
+        };
+
+        new uPlot(options, data, chartContainer);
+    });
 </script>
 
 <div class="d-flex vh-100 overflow-hidden">
@@ -53,6 +102,7 @@
                         rows="3"
                     ></textarea>
                 </NamedCard>
+
             </div>
         </div>
     </main>
