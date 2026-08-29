@@ -17,10 +17,13 @@ export default defineConfig({
 			adapter: adapter({
 				pages: 'build',
 				assets: 'build',
-				fallback: undefined,
+				fallback: 'index.html',
 				precompress: false,
 				strict: true
 			}),
+			paths: {
+				base: '/browser'
+			},
 			prerender: {
 				entries: ['*']
 			}

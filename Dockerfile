@@ -50,8 +50,7 @@ COPY src/ .
 
 # import sveltekit-ui-dist assets into the backend image
 RUN mkdir -p ./internal/assets/web
-COPY --from=web /out/index.html ./internal/assets/web/index.html
-COPY --from=web /out/assets ./internal/assets/web/assets
+COPY --from=web /out/ ./internal/assets/web/
 
 # import swagger-ui-dist assets into the backend image
 RUN mkdir -p ./internal/assets/swagger
