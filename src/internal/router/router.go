@@ -12,6 +12,15 @@ import (
 func NewHTTPServer(addr string, db *sqlx.DB) *http.Server {
 	r := mux.NewRouter()
 
+	hhb := hh.NewBrowserHandler()
+	r.HandleFunc("/browser", hhb.GetBrowser).Methods("GET")
+	r.PathPrefix("/browser/").Handler(
+		http.StripPrefix(
+			"/browser/",
+			hhb.GetWebHandler(),
+		),
+	)
+
 	hhd := hh.NewDocsHandler()
 	r.HandleFunc("/docs", hhd.GetDocs).Methods("GET")
 	r.PathPrefix("/docs/").Handler(
