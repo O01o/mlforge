@@ -1,4 +1,20 @@
 # --------------------------------------------------
+# MLforge Web
+# --------------------------------------------------
+
+FROM node:20-alpine AS web
+WORKDIR /work
+
+COPY ./web/package.json ./web/package-lock.json ./
+RUN npm ci
+COPY ./web/ ./
+
+RUN npm run build && \
+    mkdir -p /out && \
+    cp -R /work/build/* /out/
+
+
+# --------------------------------------------------
 # MLforge Swagger
 # --------------------------------------------------
 
@@ -31,6 +47,11 @@ RUN go mod download
 ENV CGO_ENABLED=0 GOOS=linux
 
 COPY src/ .
+
+# import sveltekit-ui-dist assets into the backend image
+RUN mkdir -p ./internal/assets/web
+COPY --from=web /out/index.html ./internal/assets/web/index.html
+COPY --from=web /out/assets ./internal/assets/web/assets
 
 # import swagger-ui-dist assets into the backend image
 RUN mkdir -p ./internal/assets/swagger

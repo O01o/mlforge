@@ -11,20 +11,23 @@
     import ExperimentSidebarItem from "$lib/components/experiment/ExperimentSidebarItem.svelte";
     import type { UPlotProps } from "$lib/types/uplot/uplot";
     import type { AlignedData } from "uplot";
-    
+    import { fetchExperimentSummaries } from "$lib/api/experiment";
+
+    /*
     const experiments = Array.from({ length: 30 }, (_, i) => ({
         id: i + 1,
         name: `ExperimentSummary ${i + 1}`,
         description: "Sample MLforge experiment",
     } as ExperimentSummary));
-
-    
+    */
+    let experiments: ExperimentSummary[] | undefined = $state();
     let chartContainer: HTMLDivElement | undefined = $state();
 
     let props: UPlotProps = $state({
         data: [
             [0, 1, 2, 3, 4, 5],
-            [0, 1, 4, 9, 16, 25]
+            [0, 1, 4, 9, 16, 25],
+            [0, 1, 0.5, null, 0.125, 0.0625]
         ],
         options: {
             series: [
@@ -33,15 +36,21 @@
                     label: "y = x^2",
                     stroke: "blue",
                     width: 2
+                },
+                {
+                    label: "y = 1/x",
+                    stroke: "green",
+                    width: 2
                 }
             ],
             title: "Sample Chart",
-            width: 800,
-            height: 400
+            width: 400,
+            height: 300
         }
     });
 
-    onMount(() => {
+    onMount(async () => {
+        experiments = (await fetchExperimentSummaries()).experimentSummaries;
         new uPlot(props.options, props.data, chartContainer);
     });
 </script>
