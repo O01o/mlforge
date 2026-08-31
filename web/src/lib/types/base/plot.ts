@@ -14,6 +14,6 @@ export type MetricPlots = {
 };
 
 export type RunMetricPlots = {
-    runId: string;
+    runId: number;
     metricPlots: MetricPlots[];
 };

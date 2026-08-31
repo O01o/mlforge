@@ -3,18 +3,25 @@
     import MLforgeSideBarItem from "../common/MLforgeSideBarItem.svelte";
     let {
         run,
-        active = false,
+        active = $bindable<boolean>(),
     }: { 
         run: RunDetails;
-        active?: boolean;
+        active: boolean;
     } = $props();
 </script>
 
 <MLforgeSideBarItem>
-    <div class="nav-link {active ? 'active' : 'text-white'}" aria-current="page"> 
+    <button
+        type="button"
+        class="nav-link {active ? 'active' : 'text-white'}" 
+        aria-current="page"
+        on:click={() => {
+            active = !active;
+        }}
+    > 
         <svg class="bi pe-none me-2" width="16" height="16" aria-hidden="true">
             <use xlink:href="#home"></use>
         </svg>
         (ID: {run.runSummary.id}) {run.runSummary.name}
-    </div>
+    </button>
 </MLforgeSideBarItem>

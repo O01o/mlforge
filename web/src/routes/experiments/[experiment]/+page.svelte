@@ -7,7 +7,8 @@
     import RunSidebarItem from "$lib/components/run/RunSidebarItem.svelte";
     import RunSummaryCard from "$lib/components/run/RunSummaryCard.svelte";
     import type { RunSummary, RunDetails } from "$lib/types/base/run";
-    import type { ExperimentDetails } from "$lib/types/base/experiment";
+    import type { RunDetailsActivation } from "$lib/types/uplot/run";
+    import type { ExperimentSummary } from "$lib/types/base/experiment";
     import type { PlotRange } from "$lib/types/base/plot";
     import type { RunMetricPlots } from "$lib/types/base/plot";
     import { fetchExperimentDetails } from "$lib/api/experiment";
@@ -19,10 +20,17 @@
         throw new Error("Experiment ID is not a number");
     }
 
-    let experimentDetails: ExperimentDetails = $state({} as ExperimentDetails);
+    let experimentSummary: ExperimentSummary = $state({
+        id: 0,
+        name: "",
+        description: "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    });
+    let runDetailActivations: RunDetailsActivation[] = $state([]);
     let plotRange: PlotRange = $state({
-        start: 0,
-        end: 5,
+        startStep: 0,
+        endStep: 5,
     });
     let runMetricPlots: RunMetricPlots[] = $state([]);
     let chartContainer: HTMLDivElement | undefined = $state();
@@ -54,7 +62,14 @@
     });
 
     onMount(async () => {
-        experimentDetails = (await fetchExperimentDetails(experimentId)).experimentDetails;
+        let experimentDetails = (await fetchExperimentDetails(experimentId)).experimentDetails;
+        experimentSummary = experimentDetails.experimentSummary;
+        for (let run of experimentDetails.runDetails) {
+            runDetailActivations.push({
+                runDetails: run,
+                active: false
+            });
+        }
         new uPlot(props.options, props.data, chartContainer);
     });
 </script>
@@ -92,8 +107,8 @@
             </div>
         </div>
         <hr />
-        {#each experimentDetails.runDetails as run}
-            <RunSidebarItem run={run} active={run.runSummary.id === 1} />
+        {#each runDetailActivations as runActivation}
+            <RunSidebarItem run={runActivation.runDetails} bind:active={runActivation.active} />
         {/each}
     </MLforgeSideBar>
 
@@ -102,7 +117,7 @@
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h1 class="h3 mb-1">Experiment 1</h1>
+                    <h1 class="h3 mb-1">{experimentSummary.name}</h1>
                     <p class="text-body-secondary mb-0">
                         Training runs for this experiment
                     </p>
@@ -114,8 +129,8 @@
             </div>
 
             <div class="row g-3">
-                {#each experimentDetails.runDetails as run}
-                    <RunSummaryCard {run} /> 
+                {#each runDetailActivations as runActivation}
+                    <RunSummaryCard run={runActivation.runDetails} /> 
                 {/each}
             </div>
         </div>
