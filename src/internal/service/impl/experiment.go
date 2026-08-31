@@ -63,10 +63,10 @@ func (s *experimentService) GetExperimentByID(id uint64) (*sc.GetExperimentRespo
 			RunID:            run.RunID,
 			RunName:          run.RunName,
 			RunDescription:   run.RunDescription,
-			RunFailureReason: run.RunFailureReason,
+			RunFailureReason: run.RunFailureReason.String,
 			RunStatus:        run.RunStatus,
 			StartedAt:        run.StartedAt,
-			EndedAt:          run.EndedAt,
+			EndedAt:          run.EndedAt.Time,
 		}
 
 		repoParameter := rm.NewParameterRepository(ctx, tx)
