@@ -21,40 +21,12 @@
     } as ExperimentSummary));
     */
     let experiments: ExperimentSummary[] = $state([]);
-    let chartContainer: HTMLDivElement | undefined = $state();
-
-    let props: UPlotProps = $state({
-        data: [
-            [0, 1, 2, 3, 4, 5],
-            [0, 1, 4, 9, 16, 25],
-            [0, 1, 0.5, null, 0.125, 0.0625]
-        ],
-        options: {
-            series: [
-                {},
-                {
-                    label: "y = x^2",
-                    stroke: "blue",
-                    width: 2
-                },
-                {
-                    label: "y = 1/x",
-                    stroke: "green",
-                    width: 2
-                }
-            ],
-            title: "Sample Chart",
-            width: 400,
-            height: 300
-        }
-    });
 
     onMount(async () => {
         let experimentSummaries = await fetchExperimentSummaries();
         console.log("Fetched data:", experimentSummaries);
         experiments = experimentSummaries.experimentSummaries;
         console.log("experiments updated:", experiments);
-        new uPlot(props.options, props.data, chartContainer);
     });
 </script>
 
@@ -97,7 +69,6 @@
                         rows="3"
                     ></textarea>
                 </NamedCard>
-                <div bind:this={chartContainer}></div>
             </div>
         </div>
     </main>

@@ -1,4 +1,7 @@
 <script lang="ts">
+    import uPlot from "uplot";
+    import { onMount } from "svelte";
+    import type { UPlotProps } from "$lib/types/uplot/uplot";
     import MLforgeSideBar from "$lib/components/common/MLforgeSideBar.svelte";
     import MLforgeSideBarItem from "$lib/components/common/MLforgeSideBarItem.svelte";
     import RunSidebarItem from "$lib/components/run/RunSidebarItem.svelte";
@@ -34,6 +37,38 @@
             }
         ]
     } as RunDetails));
+
+    let chartContainer: HTMLDivElement | undefined = $state();
+
+    let props: UPlotProps = $state({
+        data: [
+            [0, 1, 2, 3, 4, 5],
+            [0, 1, 4, 9, 16, 25],
+            [0, 1, 0.5, null, 0.125, 0.0625]
+        ],
+        options: {
+            series: [
+                {},
+                {
+                    label: "y = x^2",
+                    stroke: "blue",
+                    width: 2
+                },
+                {
+                    label: "y = 1/x",
+                    stroke: "green",
+                    width: 2
+                }
+            ],
+            title: "Sample Chart",
+            width: 400,
+            height: 300
+        }
+    });
+
+    onMount(async () => {
+        new uPlot(props.options, props.data, chartContainer);
+    });
 </script>
 
 <div class="d-flex vh-100 overflow-hidden">
