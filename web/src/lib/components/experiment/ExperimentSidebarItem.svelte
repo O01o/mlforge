@@ -10,6 +10,6 @@
     } = $props();
 </script>
 
-<MLforgeSideBarItem path={`/${experiment.id}`} active={active}>
+<MLforgeSideBarItem path={`/browser/experiments/${experiment.id}`} active={active}>
     (ID: {experiment.id}) {experiment.name}
 </MLforgeSideBarItem>
