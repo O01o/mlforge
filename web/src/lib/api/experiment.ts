@@ -4,8 +4,15 @@ import type {
 } from '$lib/types/schema/experiment';
 
 export const fetchExperimentSummaries = async (): Promise<ExperimentSummariesResponse> => {
-  const response = await fetch('/api/experiments');
-  console.log(`Response status: ${response.status}`);
+  const response = await fetch(
+    '/api/experiments', 
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
   if (!response.ok) {
     throw new Error('Failed to fetch experiments');
   }
@@ -13,7 +20,15 @@ export const fetchExperimentSummaries = async (): Promise<ExperimentSummariesRes
 };
 
 export const fetchExperimentDetails = async (experimentId: number): Promise<ExperimentDetailsResponse> => {
-  const response = await fetch(`/api/experiments/${experimentId}`);
+  const response = await fetch(
+    `/api/experiments/${experimentId}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
   if (!response.ok) {
     throw new Error(`Failed to fetch details for experiment ${experimentId}`);
   }

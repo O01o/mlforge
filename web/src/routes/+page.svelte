@@ -20,7 +20,7 @@
         description: "Sample MLforge experiment",
     } as ExperimentSummary));
     */
-    let experiments: ExperimentSummary[] | undefined = $state();
+    let experiments: ExperimentSummary[] = $state([]);
     let chartContainer: HTMLDivElement | undefined = $state();
 
     let props: UPlotProps = $state({
@@ -50,7 +50,10 @@
     });
 
     onMount(async () => {
-        experiments = (await fetchExperimentSummaries()).experimentSummaries;
+        let experimentSummaries = await fetchExperimentSummaries();
+        console.log("Fetched data:", experimentSummaries);
+        experiments = experimentSummaries.experimentSummaries;
+        console.log("experiments updated:", experiments);
         new uPlot(props.options, props.data, chartContainer);
     });
 </script>
