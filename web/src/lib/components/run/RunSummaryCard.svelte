@@ -11,8 +11,8 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <p class="mb-0">Status: {run.runSummary.status}</p>
-            <p class="mb-0">Started At: {run.runSummary.startedAt.toLocaleString()}</p>
-            <p class="mb-0">Ended At: {run.runSummary.endedAt.toLocaleString()}</p>
+            <p class="mb-0">Started At: {run.runSummary.startedAt?.toLocaleString() ?? '-'}</p>
+            <p class="mb-0">Ended At: {run.runSummary.endedAt?.toLocaleString() ?? '-'}</p>
         </div>
         {#if run.runSummary.status === 1}
             <span class="badge text-bg-success">

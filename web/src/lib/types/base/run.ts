@@ -7,8 +7,8 @@ export type RunSummary = {
     description: string;
     failureReason: string;
     status: number;
-    startedAt: Date;
-    endedAt: Date;
+    startedAt?: Date;
+    endedAt?: Date;
 };
 
 export type RunDetails = {
