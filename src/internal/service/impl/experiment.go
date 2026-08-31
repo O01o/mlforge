@@ -118,7 +118,7 @@ func (s *experimentService) GetExperimentByID(id uint64) (*sc.GetExperimentRespo
 	}, nil
 }
 
-func (s *experimentService) GetExperimentList() ([]*sc.GetExperimentSummariesResponse, error) {
+func (s *experimentService) GetExperimentList() (*sc.GetExperimentSummariesResponse, error) {
 	ctx := context.Background()
 	tx, err := s.db.BeginTxx(ctx, nil)
 	if err != nil {
@@ -144,9 +144,9 @@ func (s *experimentService) GetExperimentList() ([]*sc.GetExperimentSummariesRes
 			},
 		)
 	}
-	return []*sc.GetExperimentSummariesResponse{{
+	return &sc.GetExperimentSummariesResponse{
 		ExperimentSummaries: experimentS,
-	}}, nil
+	}, nil
 }
 
 func (s *experimentService) UpdateExperimentByID(id uint64, req *sc.CreateExperimentRequest) error {
