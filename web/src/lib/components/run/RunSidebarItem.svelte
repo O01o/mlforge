@@ -10,6 +10,11 @@
     } = $props();
 </script>
 
-<MLforgeSideBarItem path={`/${run.runSummary.id}`} active={active}>
-    (ID: {run.runSummary.id}) {run.runSummary.name}
+<MLforgeSideBarItem>
+    <div class="nav-link {active ? 'active' : 'text-white'}" aria-current="page"> 
+        <svg class="bi pe-none me-2" width="16" height="16" aria-hidden="true">
+            <use xlink:href="#home"></use>
+        </svg>
+        (ID: {run.runSummary.id}) {run.runSummary.name}
+    </div>
 </MLforgeSideBarItem>

@@ -3,13 +3,13 @@
     import MLforgeSideBarItem from "../common/MLforgeSideBarItem.svelte";
     let {
         experiment,
-        active = false,
     }: { 
         experiment: ExperimentSummary;
-        active?: boolean;
     } = $props();
 </script>
 
-<MLforgeSideBarItem path={`/browser/experiments/${experiment.id}`} active={active}>
-    (ID: {experiment.id}) {experiment.name}
+<MLforgeSideBarItem>
+    <a href={`/browser/experiments/${experiment.id}`} class="nav-link text-white" aria-current="page"> 
+        (ID: {experiment.id}) {experiment.name}
+    </a>
 </MLforgeSideBarItem>
