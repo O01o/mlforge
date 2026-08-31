@@ -12,6 +12,8 @@ import (
 func NewHTTPServer(addr string, db *sqlx.DB) *http.Server {
 	r := mux.NewRouter()
 
+	r.HandleFunc("/", hh.RedirectToBrowser).Methods("GET")
+
 	hhb := hh.NewBrowserHandler()
 	r.HandleFunc("/browser", hhb.GetBrowser).Methods("GET")
 	r.PathPrefix("/browser/").Handler(
