@@ -7,37 +7,24 @@
     import RunSidebarItem from "$lib/components/run/RunSidebarItem.svelte";
     import RunSummaryCard from "$lib/components/run/RunSummaryCard.svelte";
     import type { RunSummary, RunDetails } from "$lib/types/base/run";
+    import type { ExperimentDetails } from "$lib/types/base/experiment";
+    import type { PlotRange } from "$lib/types/base/plot";
+    import type { RunMetricPlots } from "$lib/types/base/plot";
+    import { fetchExperimentDetails } from "$lib/api/experiment";
+    import { page } from '$app/state';
 
-    const runs = Array.from({ length: 8 }, (_, i) => ({
-        runSummary: {
-            id: i + 1,
-            name: `RunSummary ${i + 1}`,
-            description: "Sample MLforge training run",
-        } as RunSummary,
-        parameters: [
-            {
-                id: 1,
-                name: "Learning Rate",
-                value: "0.001"
-            },
-            {
-                id: 2,
-                name: "Batch Size",
-                value: "32"
-            }
-        ],
-        metrics: [
-            {
-                id: 1,
-                name: "Accuracy"
-            },
-            {
-                id: 2,
-                name: "Loss"
-            }
-        ]
-    } as RunDetails));
+    const experimentIdString = $derived(page.params.experiment ?? "-");
+    const experimentId = Number(experimentIdString);
+    if (isNaN(experimentId)) {
+        throw new Error("Experiment ID is not a number");
+    }
 
+    let experimentDetails: ExperimentDetails = $state({} as ExperimentDetails);
+    let plotRange: PlotRange = $state({
+        start: 0,
+        end: 5,
+    });
+    let runMetricPlots: RunMetricPlots[] = $state([]);
     let chartContainer: HTMLDivElement | undefined = $state();
 
     let props: UPlotProps = $state({
@@ -67,6 +54,7 @@
     });
 
     onMount(async () => {
+        experimentDetails = (await fetchExperimentDetails(experimentId)).experimentDetails;
         new uPlot(props.options, props.data, chartContainer);
     });
 </script>
@@ -89,6 +77,7 @@
                     id="plotRangeStartFormControlInput" 
                     placeholder="Plot Range Start"
                     min="0"
+                    value={plotRange.startStep}
                 />
             </div>
             <div>
@@ -98,11 +87,12 @@
                     id="plotRangeEndFormControlInput" 
                     placeholder="Plot Range End"
                     min="1"
+                    value={plotRange.endStep}
                 />
             </div>
         </div>
         <hr />
-        {#each runs as run}
+        {#each experimentDetails.runDetails as run}
             <RunSidebarItem run={run} active={run.runSummary.id === 1} />
         {/each}
     </MLforgeSideBar>
@@ -124,7 +114,7 @@
             </div>
 
             <div class="row g-3">
-                {#each runs as run}
+                {#each experimentDetails.runDetails as run}
                     <RunSummaryCard {run} /> 
                 {/each}
             </div>
