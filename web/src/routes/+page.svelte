@@ -34,7 +34,7 @@
 
     <MLforgeSideBar>
         {#each experiments as experiment}
-            <ExperimentSidebarItem experiment={experiment} active={experiment.id === 1} />
+            <ExperimentSidebarItem experiment={experiment} />
         {/each}
     </MLforgeSideBar>
 
