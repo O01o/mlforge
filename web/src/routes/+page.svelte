@@ -13,13 +13,6 @@
     import type { AlignedData } from "uplot";
     import { fetchExperimentSummaries } from "$lib/api/experiment";
 
-    /*
-    const experiments = Array.from({ length: 30 }, (_, i) => ({
-        id: i + 1,
-        name: `ExperimentSummary ${i + 1}`,
-        description: "Sample MLforge experiment",
-    } as ExperimentSummary));
-    */
     let experiments: ExperimentSummary[] = $state([]);
 
     onMount(async () => {
