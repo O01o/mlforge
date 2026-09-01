@@ -10,12 +10,13 @@ type PlotRange struct {
 }
 
 type MetricPlots struct {
+	RunID    uint64             `json:"runId"`
 	MetricID uint64             `json:"metricId"`
 	Plots    map[string]float64 `json:"plots"`
 }
 
 type RunMetricPlots struct {
-	RunID       uint64        `json:"runId"`
+	MetricName  string        `json:"metricName"`
 	MetricPlots []MetricPlots `json:"metricPlots"`
 }
 

@@ -65,14 +65,13 @@ func (s *plotService) GetPlots(req *sc.GetPlotsRequest) (*sc.GetPlotsResponse, e
 	repoPlot := rm.NewPlotRepository(ctx, tx)
 	var runMetricPlots []sc.RunMetricPlots
 	for _, runID := range req.RunIDs {
-		metricIDs, err := repoMetric.GetMetricIDs(runID)
+		metrics, err := repoMetric.GetMetrics(runID)
 		if err != nil {
 			return nil, err
 		}
-		var metricPlots []sc.MetricPlots
-		for _, metricID := range metricIDs {
+		for _, metric := range metrics {
 			plots, err := repoPlot.GetPlots(
-				metricID,
+				metric.MetricID,
 				req.PlotRange.StartStep,
 				req.PlotRange.EndStep,
 			)
@@ -83,20 +82,29 @@ func (s *plotService) GetPlots(req *sc.GetPlotsRequest) (*sc.GetPlotsResponse, e
 			for _, plot := range plots {
 				plotMap[strconv.FormatUint(plot.PlotStep, 10)] = plot.PlotValue
 			}
-			metricPlots = append(
-				metricPlots, sc.MetricPlots{
-					MetricID: metricID,
-					Plots:    plotMap,
-				},
-			)
+			metricPlots := sc.MetricPlots{
+				RunID:    runID,
+				MetricID: metric.MetricID,
+				Plots:    plotMap,
+			}
+			foundMetricName := false
+			for i := range runMetricPlots {
+				if runMetricPlots[i].MetricName == metric.MetricName {
+					foundMetricName = true
+					runMetricPlots[i].MetricPlots = append(runMetricPlots[i].MetricPlots, metricPlots)
+					break
+				}
+			}
+			if !foundMetricName {
+				runMetricPlots = append(
+					runMetricPlots,
+					sc.RunMetricPlots{
+						MetricName:  metric.MetricName,
+						MetricPlots: []sc.MetricPlots{metricPlots},
+					},
+				)
+			}
 		}
-		runMetricPlots = append(
-			runMetricPlots,
-			sc.RunMetricPlots{
-				RunID:       runID,
-				MetricPlots: metricPlots,
-			},
-		)
 	}
 
 	err = tx.Commit()

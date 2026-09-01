@@ -129,14 +129,21 @@ paths:
           $ref: "#/components/responses/ErrorResponse"
   
   /api/experiments/{experimentId}/runs:
-    parameters:
-      - $ref: "#/components/parameters/ExperimentId"
-
     post:
       tags:
         - Runs
       operationId: createRun
       summary: Create and start a run
+      parameters:
+        - name: experimentId
+          in: path
+          required: true
+          description: Experiment identifier
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example: 1
       requestBody:
         required: true
         content:
@@ -451,9 +458,14 @@ components:
     MetricPlots:
       type: object
       required:
+        - runId 
         - metricId
         - plots
       properties:
+        runId:
+          type: integer
+          format: int64
+          minimum: 1
         metricId:
           type: integer
           format: int64
@@ -469,14 +481,13 @@ components:
     RunMetricPlots:
       type: object
       required:
-        - runId
-        - metricId
-        - plots
+        - metricName
+        - metricPlots
       properties:
-        runId:
-          type: integer
-          format: int64
-          minimum: 1
+        metricName:
+          type: string
+          minLength: 1
+          maxLength: 32
         metricPlots:
           type: array
           items:
@@ -587,7 +598,8 @@ components:
     RunIdResponse:
       type: object
       required:
-        - experimentId
+        - id
+        - metricIds
       properties:
         id:
           type: integer
