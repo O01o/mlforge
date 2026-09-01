@@ -2,7 +2,7 @@ import type { RunMetricPlots, PlotRange } from '../base/plot';
 
 export type RunMetricPlotsRequest = {
     plotRange: PlotRange;
-    runIds: string[];
+    runIds: number[];
 };
 
 export type RunMetricPlotsResponse = {

@@ -9,11 +9,12 @@ export type PlotRange = {
 };
 
 export type MetricPlots = {
+    runId: number;
     metricId: number;
-    plots: Map<number, number>;
+    plots: Record<string, number>;
 };
 
 export type RunMetricPlots = {
-    runId: number;
+    metricName: string;
     metricPlots: MetricPlots[];
 };
