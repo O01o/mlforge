@@ -5,7 +5,5 @@ import "embed"
 //go:embed db/ddl.sql
 //go:embed swagger/*
 //go:embed swagger/node_modules/swagger-ui-dist/*
-//go:embed web/index.html
-//go:embed web/_app/*
-//go:embed web/_app/**/*
+//go:embed web/**
 var Files embed.FS
