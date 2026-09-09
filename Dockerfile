@@ -81,6 +81,7 @@ RUN CGO_ENABLED=0 GOOS=linux \
 FROM scratch
 
 COPY --from=backend /out/mlforge /mlforge
+# COPY ./cert/ /cert/
 
 EXPOSE 8080
 
