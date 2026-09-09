@@ -1,12 +1,14 @@
 package core
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -23,7 +25,14 @@ type dbConfig struct {
 }
 
 func ConnectDB() *sqlx.DB {
-	tlsEnabled, _ := strconv.ParseBool(os.Getenv("DB_TLS"))
+	tlsEnabled := false
+	if os.Getenv("DB_TLS") != "" {
+		var err error
+		tlsEnabled, err = strconv.ParseBool(os.Getenv("DB_TLS"))
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	config := &dbConfig{
 		Host:       os.Getenv("DB_HOST"),
@@ -45,6 +54,33 @@ func ConnectDB() *sqlx.DB {
 		config.Port,
 		config.Name,
 	)
+	if config.TLS {
+		if config.CACert != "" {
+			rootCertPool := x509.NewCertPool()
+			caCert, err := os.ReadFile(config.CACert)
+			if err != nil {
+				log.Fatal(err)
+			}
+			if ok := rootCertPool.AppendCertsFromPEM(caCert); !ok {
+				log.Fatal("Failed to append PEM.")
+			}
+			tlsConfig := &tls.Config{
+				RootCAs: rootCertPool,
+			}
+			// Setting mTLS
+			if config.ClientCert != "" && config.ClientKey != "" {
+				clientCert, err := tls.LoadX509KeyPair(config.ClientCert, config.ClientKey)
+				if err != nil {
+					log.Fatal(err)
+				}
+				tlsConfig.Certificates = []tls.Certificate{clientCert}
+			}
+			mysql.RegisterTLSConfig("custom", tlsConfig)
+			dsn += "&tls=custom"
+		} else {
+			dsn += "&tls=true"
+		}
+	}
 	db, err := sqlx.Connect("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
