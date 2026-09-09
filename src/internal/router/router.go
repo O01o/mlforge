@@ -15,7 +15,7 @@ func NewHTTPServer(addr string, db *sqlx.DB) *http.Server {
 	r.HandleFunc("/", hh.RedirectToBrowser).Methods("GET")
 
 	hhb := hh.NewBrowserHandler()
-	r.HandleFunc("/browser", hhb.GetBrowser).Methods("GET")
+	r.Handle("/browser", hhb.GetWebHandler()).Methods("GET")
 	r.PathPrefix("/browser/").Handler(
 		http.StripPrefix(
 			"/browser/",

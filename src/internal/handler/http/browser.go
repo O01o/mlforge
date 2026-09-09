@@ -5,6 +5,7 @@ import (
 	"mlforge/internal/assets"
 	"mlforge/internal/core"
 	"net/http"
+	"path"
 )
 
 type BrowserHandler struct {
@@ -27,12 +28,21 @@ func NewBrowserHandler() *BrowserHandler {
 	}
 }
 
-func (h *BrowserHandler) GetBrowser(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	http.Redirect(w, r, "/browser/", http.StatusTemporaryRedirect)
-}
-
 func (h *BrowserHandler) GetWebHandler() http.Handler {
-	return http.FileServer(http.FS(h.webFS))
+	fileServer := http.FileServer(http.FS(h.webFS))
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if path.Ext(r.URL.Path) == "" {
+			indexHTML, err := fs.ReadFile(h.webFS, "index.html")
+			if err != nil {
+				http.Error(w, "web application is not available", http.StatusInternalServerError)
+				return
+			}
+
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			_, _ = w.Write(indexHTML)
+			return
+		}
+		fileServer.ServeHTTP(w, r)
+	})
 }
